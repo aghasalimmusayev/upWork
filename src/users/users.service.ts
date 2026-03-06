@@ -9,7 +9,7 @@ export class UsersService {
 
     async getUsers() {
         const users = await this.repo.find()
-        if (users.length === 0) throw new NotFoundException('No User existis')
+        if (users.length === 0) throw new NotFoundException('No User exists')
         return users
     }
 
@@ -20,9 +20,7 @@ export class UsersService {
     }
 
     async findUserByEmail(email: string) {
-        const user = this.repo.findOne({ where: { email } })
-        if (!user) throw new NotFoundException('User not found')
-        return user
+        return await this.repo.findOne({ where: { email } })
     }
 
     async remove(id: number) {
