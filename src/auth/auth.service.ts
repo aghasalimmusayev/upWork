@@ -9,6 +9,7 @@ import { TokenEntity } from 'src/Common/Entities/token.entity';
 import { generateAccessToken, generateRefreshToken } from 'src/Common/jwt';
 import { LoginDto } from 'src/Common/Dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import ms, { StringValue } from 'ms';
 
 @Injectable()
 export class AuthService {
@@ -64,13 +65,26 @@ export class AuthService {
     }
 
     async refresh(refreshToken: string) {
-        const token = await this.tokenRepo.findOne({ where: { tokenHash: refreshToken } })
-        if (!token) throw new UnauthorizedException('No Refresh Token')
-        const accessToken = await generateAccessToken(this.jwt, {
-            id: token.user.id,
-            email: token.user.email,
-            role: token.user.role
+        const token = await this.tokenRepo.findOne({
+            where: { tokenHash: refreshToken },
+            relations: ['user']
         })
-        return { success: true, accessToken }
+        if (!token) throw new UnauthorizedException('Invalid Refresh Token')
+        const user = token.user
+        await this.tokenRepo.remove(token)
+        const accessToken = await generateAccessToken(this.jwt, {
+            id: user.id,
+            email: user.email,
+            role: user.role
+        })
+        const newRefreshToken = await generateRefreshToken(this.jwt, user)
+        const expiresAt = new Date(Date.now() + ms((process.env.JWT_REFRESH_TIME) as StringValue))
+        const newToken = this.tokenRepo.create({
+            tokenHash: newRefreshToken,
+            expiresAt,
+            user
+        })
+        await this.tokenRepo.save(newToken)
+        return { success: true, accessToken, refreshToken: newRefreshToken }
     }
 }

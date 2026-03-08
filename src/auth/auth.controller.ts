@@ -1,7 +1,7 @@
-import { Body, Controller, Post, Res, Session } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res, Session } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/Common/Dtos/create-user.dto';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginDto } from 'src/Common/Dtos/login.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
@@ -40,4 +40,17 @@ export class AuthController {
         return { user, accessToken }
     }
 
+    @Post('refresh')
+    async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+        const oldRefreshToken = req.cookies?.refreshToken
+        const { accessToken, refreshToken: newRefreshToken } = await this.authService.refresh(oldRefreshToken)
+        res.cookie('refreshToken', newRefreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            path: '/auth/refresh',
+            maxAge: ms((process.env.JWT_REFRESH_TIME ?? '7d') as StringValue)
+        })
+        return { accessToken }
+    }
 }
