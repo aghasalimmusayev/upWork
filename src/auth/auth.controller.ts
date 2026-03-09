@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, Res, Session } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, Session, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/Common/Dtos/create-user.dto';
 import type { Request, Response } from 'express';
@@ -7,6 +7,8 @@ import { LoginDto } from 'src/Common/Dtos/login.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import ms, { StringValue } from 'ms'
 import { AuthResponseDto } from 'src/Common/Dtos/auth-response.dto';
+import type { AuthRequest } from 'src/Common/type';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiBearerAuth()
 @Controller('auth')
@@ -40,7 +42,7 @@ export class AuthController {
         return { user, accessToken }
     }
 
-    @Post('refresh')
+    @Post('/refresh')
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const oldRefreshToken = req.cookies?.refreshToken
         const { accessToken, refreshToken: newRefreshToken } = await this.authService.refresh(oldRefreshToken)
@@ -52,5 +54,11 @@ export class AuthController {
             maxAge: ms((process.env.JWT_REFRESH_TIME ?? '7d') as StringValue)
         })
         return { accessToken }
+    }
+
+    @Get('/profile')
+    @UseGuards(AuthGuard)
+    getProfile(@Req() req: AuthRequest) {
+        return req.user
     }
 }

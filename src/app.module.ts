@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './Common/Entities/user.entity';
 import { TokenEntity } from './Common/Entities/token.entity';
 import { ConfigModule } from '@nestjs/config';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { ConfigModule } from '@nestjs/config';
     }),
     ConfigModule.forRoot({ isGlobal: true }),
     UsersModule,
-    AuthModule
+    AuthModule,
+    JobsModule
   ],
   controllers: [AppController],
   providers: [AppService],

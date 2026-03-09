@@ -14,12 +14,12 @@ export class CreateUserDto {
     @ApiPropertyOptional()
     @IsString()
     @IsOptional()
-    name: string
+    name?: string
 
     @ApiPropertyOptional()
     @IsString()
     @IsOptional()
-    surname: string
+    surname?: string
 
     @ApiProperty()
     @IsString()
@@ -27,6 +27,7 @@ export class CreateUserDto {
 
     @ApiProperty()
     @ApiPropertyOptional()
+    @IsOptional()
     @IsString()
     phone?: string
 

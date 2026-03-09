@@ -19,7 +19,7 @@ export class User extends CommonEntity {
     @Column({ type: 'varchar', nullable: true })
     surname: string
 
-    @Column()
+    @Column({ type: 'varchar', nullable: true })
     phone: string
 
     @OneToMany(() => TokenEntity, (tokens) => tokens.user)
