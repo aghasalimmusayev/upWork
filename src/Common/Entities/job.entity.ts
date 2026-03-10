@@ -22,7 +22,7 @@ export class JobEntity extends CommonEntity {
     @Column('simple-array')
     skills: string[]
 
-    @Column({ type: 'text' })
+    @Column({ type: 'text', default: 'OPEN' })
     status: 'OPEN' | 'CLOSED'
 
     @ManyToOne(() => User, (user) => user.jobs, { onDelete: 'CASCADE' })

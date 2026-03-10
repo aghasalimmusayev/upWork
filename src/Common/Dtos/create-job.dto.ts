@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsArray, IsEnum, IsNumber, IsOptional, IsString, MinLength } from "class-validator";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
 import { PaymentType } from "../type";
 
 export class CreateJobDto {
@@ -18,7 +18,7 @@ export class CreateJobDto {
 
     @ApiProperty()
     @IsNumber()
-    @MinLength(1)
+    @Min(1)
     price: number
 
     @ApiProperty()

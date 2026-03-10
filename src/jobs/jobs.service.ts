@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateJobDto } from 'src/Common/Dtos/create-job.dto';
+import { UpdateJobDto } from 'src/Common/Dtos/updateJob.dto';
 import { JobEntity } from 'src/Common/Entities/job.entity';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
@@ -21,7 +22,7 @@ export class JobsService {
     }
 
     async getAll(userId: number) {
-        return await this.repo.find({ where: { user: { id: userId } } })
+        return await this.repo.find({ where: { user: { id: userId } }, relations: ['user'] }) //! yazilacaq ya yox???
     }
 
     async findJob(id: number, userId: number) {
@@ -30,8 +31,12 @@ export class JobsService {
         return job
     }
 
-    async updateJob(id: number, data: any) {
-
+    async updateJob(id: number, userId: number, data: UpdateJobDto) {
+        const job = await this.findJob(id, userId)
+        if (!job) throw new NotFoundException('Job not found')
+        const result = await this.repo.update(id, { ...data, updatedAt: new Date() })
+        if (result.affected === 0) throw new NotFoundException('Something went wrong in updating job')
+        return await this.findJob(id, userId)
     }
 
     async delete(id: number, userId: number) {

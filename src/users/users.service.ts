@@ -10,9 +10,7 @@ export class UsersService {
     constructor(@InjectRepository(User) private repo: Repository<User>) { }
 
     async getUsers() {
-        const users = await this.repo.find()
-        if (users.length === 0) throw new NotFoundException('No User exists')
-        return users
+        return await this.repo.find()
     }
 
     async findUser(id: number) {

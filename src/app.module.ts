@@ -9,6 +9,7 @@ import { TokenEntity } from './Common/Entities/token.entity';
 import { ConfigModule } from '@nestjs/config';
 import { JobsModule } from './jobs/jobs.module';
 import { JobEntity } from './Common/Entities/job.entity';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
