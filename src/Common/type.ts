@@ -8,3 +8,9 @@ export type SessionData = { userId: number | null }
 export interface AuthRequest extends Request {
     user?: User
 }
+
+export enum PaymentType {
+    FIXED = 'FIXED',
+    HOURLY = 'HOURLY'
+}
+

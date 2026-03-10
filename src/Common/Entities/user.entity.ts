@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from "typeorm";
 import { CommonEntity } from "./common.entity";
 import { TokenEntity } from "./token.entity";
+import { JobEntity } from "./job.entity";
 
 @Entity()
 export class User extends CommonEntity {
@@ -24,4 +25,7 @@ export class User extends CommonEntity {
 
     @OneToMany(() => TokenEntity, (tokens) => tokens.user)
     tokens: TokenEntity[]
+
+    @OneToMany(() => JobEntity, (jobs) => jobs.user)
+    jobs: JobEntity[]
 }

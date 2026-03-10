@@ -8,13 +8,14 @@ import { User } from './Common/Entities/user.entity';
 import { TokenEntity } from './Common/Entities/token.entity';
 import { ConfigModule } from '@nestjs/config';
 import { JobsModule } from './jobs/jobs.module';
+import { JobEntity } from './Common/Entities/job.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'db.sqlite',
-      entities: [User, TokenEntity],
+      entities: [User, TokenEntity, JobEntity],
       synchronize: true
     }),
     ConfigModule.forRoot({ isGlobal: true }),
