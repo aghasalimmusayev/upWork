@@ -31,7 +31,7 @@ export class UsersController {
         return this.userService.update(id, body)
     }
 
-    @Patch('/password/:id')
+    @Patch('/password/:id') //! evvelce logoutall edilmelidir,sonra password deyisdirilmelidir
     updatePassword(@Param('id', ParseIntPipe) id: number, @Body() body: ChangePassword) {
         return this.userService.updatePassword(id, body.password)
     }

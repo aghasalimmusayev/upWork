@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from 'src/Common/Dtos/create-user.dto';
 import { User } from 'src/Common/Entities/user.entity';
@@ -86,5 +86,14 @@ export class AuthService {
         })
         await this.tokenRepo.save(newToken)
         return { success: true, accessToken, refreshToken: newRefreshToken }
+    }
+
+    async logout(refreshToken: string) {
+        const result = await this.tokenRepo.update(
+            { tokenHash: refreshToken, revoke: false },
+            { revoke: true }
+        )
+        if (result.affected === 0) throw new UnauthorizedException('Invalid or alreay revoked token')
+        return { message: 'You have logged out' }
     }
 }
