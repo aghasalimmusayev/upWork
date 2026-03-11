@@ -96,4 +96,13 @@ export class AuthService {
         if (result.affected === 0) throw new UnauthorizedException('Invalid or alreay revoked token')
         return { message: 'You have logged out' }
     }
+
+    async logoutall(userId: number) {
+        const result = await this.tokenRepo.update(
+            { user: { id: userId }, revoke: false },
+            { revoke: true }
+        )
+        if (result.affected === 0) throw new UnauthorizedException('Invalid or already revoked token')
+        return { message: 'You have logged out from all devices' }
+    }
 }

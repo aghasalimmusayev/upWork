@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, Session, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/Common/Dtos/create-user.dto';
 import type { Request, Response } from 'express';
@@ -7,9 +7,10 @@ import { LoginDto } from 'src/Common/Dtos/login.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import ms, { StringValue } from 'ms'
 import { AuthResponseDto } from 'src/Common/Dtos/auth-response.dto';
-import type { AuthRequest } from 'src/Common/type';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { UserDto } from 'src/Common/Dtos/user-dto';
+import { CurrentUser } from 'src/decorators/currentUser.decorator';
+import { User } from 'src/Common/Entities/user.entity';
 
 @ApiBearerAuth()
 @Controller('auth')
@@ -65,10 +66,17 @@ export class AuthController {
         return this.authService.logout(refreshToken)
     }
 
+    @Post('/logoutall')
+    @UseGuards(AuthGuard)
+    logoutall(@CurrentUser() user: User, @Res({ passthrough: true }) res: Response) {
+        res.clearCookie('refreshToken')
+        return this.authService.logoutall(user.id)
+    }
+
     @Get('/profile')
     @UseGuards(AuthGuard)
     @Serialize(UserDto)
-    getProfile(@Req() req: AuthRequest) {
-        return req.user
+    getProfile(@CurrentUser() user: User) {
+        return user
     }
 }
