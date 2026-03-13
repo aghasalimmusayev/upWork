@@ -9,7 +9,9 @@ import { TokenEntity } from './Common/Entities/token.entity';
 import { ConfigModule } from '@nestjs/config';
 import { JobsModule } from './jobs/jobs.module';
 import { JobEntity } from './Common/Entities/job.entity';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CleanupModule } from './cleanup/cleanup.module';
 
 @Module({
   imports: [
@@ -20,9 +22,12 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
       synchronize: true
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 5 }]),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
-    JobsModule
+    JobsModule,
+    CleanupModule
   ],
   controllers: [AppController],
   providers: [AppService],

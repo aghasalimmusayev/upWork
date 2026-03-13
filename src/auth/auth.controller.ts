@@ -11,12 +11,15 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { UserDto } from 'src/Common/Dtos/user-dto';
 import { CurrentUser } from 'src/decorators/currentUser.decorator';
 import { User } from 'src/Common/Entities/user.entity';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @ApiBearerAuth()
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
 
+    @Throttle({ default: { ttl: 60000, limit: 3 } })
     @Post('/signup')
     @Serialize(AuthResponseDto)
     async register(@Body() body: CreateUserDto, @Res({ passthrough: true }) res: Response) {
@@ -31,6 +34,7 @@ export class AuthController {
         return { user, accessToken }
     }
 
+    @Throttle({ default: { ttl: 60000, limit: 5 } })
     @Post('/signin')
     @Serialize(AuthResponseDto)
     async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
@@ -45,6 +49,7 @@ export class AuthController {
         return { user, accessToken }
     }
 
+    @Throttle({ default: { ttl: 60000, limit: 5 } })
     @Post('/refresh')
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const oldRefreshToken = req.cookies?.refreshToken

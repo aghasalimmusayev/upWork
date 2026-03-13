@@ -22,7 +22,7 @@ export class JobsService {
     }
 
     async getAll(userId: number) {
-        return await this.repo.find({ where: { user: { id: userId } }, relations: ['user'] }) //! yazilacaq ya yox???
+        return await this.repo.find({ where: { user: { id: userId } } })
     }
 
     async findJob(id: number, userId: number) {
