@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateJobDto } from 'src/Common/Dtos/create-job.dto';
 import { UpdateJobDto } from 'src/Common/Dtos/updateJob.dto';
 import { JobEntity } from 'src/Common/Entities/job.entity';
+import { statusJob } from 'src/Common/type';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
 
@@ -31,12 +32,27 @@ export class JobsService {
         return job
     }
 
+    async findById(id: number) {
+        const job = await this.repo.findOne({ where: { id } })
+        if (!job) throw new NotFoundException('Job not found')
+        return job
+    }
+
     async updateJob(id: number, userId: number, data: UpdateJobDto) {
         const job = await this.findJob(id, userId)
         if (!job) throw new NotFoundException('Job not found')
-        const result = await this.repo.update(id, { ...data, updatedAt: new Date() })
+        const result = await this.repo.update(job.id, { ...data, updatedAt: new Date() })
         if (result.affected === 0) throw new NotFoundException('Something went wrong in updating job')
         return await this.findJob(id, userId)
+    }
+
+    async closeJob(id: number, userId: number, status: statusJob) {
+        const job = await this.findJob(id, userId)
+        if (!job) throw new NotFoundException('Job not found')
+        job.status = status
+        job.updatedAt = new Date()
+        await this.repo.save(job)
+        return { message: 'The job CLOSED', job }
     }
 
     async delete(id: number, userId: number) {

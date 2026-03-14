@@ -1,16 +1,11 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { User } from "./user.entity";
+import { CommonEntity } from "./common.entity";
 
 @Entity()
-export class TokenEntity {
-    @PrimaryGeneratedColumn()
-    id: number
-
+export class TokenEntity extends CommonEntity {
     @Column()
     tokenHash: string
-
-    @CreateDateColumn()
-    createdAt: Date
 
     @Column()
     expiresAt: Date

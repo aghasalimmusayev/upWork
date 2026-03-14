@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 @Module({
   imports: [TypeOrmModule.forFeature([JobEntity]), UsersModule],
   controllers: [JobsController],
-  providers: [JobsService, JwtService]
+  providers: [JobsService, JwtService],
+  exports: [JobsService]
 })
 export class JobsModule { }

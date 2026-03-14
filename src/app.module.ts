@@ -12,13 +12,15 @@ import { JobEntity } from './Common/Entities/job.entity';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CleanupModule } from './cleanup/cleanup.module';
+import { ProposalsModule } from './proposals/proposals.module';
+import { Proposal } from './Common/Entities/proposal.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'sqlite',
       database: 'db.sqlite',
-      entities: [User, TokenEntity, JobEntity],
+      entities: [User, TokenEntity, JobEntity, Proposal],
       synchronize: true
     }),
     ConfigModule.forRoot({ isGlobal: true }),
@@ -27,7 +29,8 @@ import { CleanupModule } from './cleanup/cleanup.module';
     UsersModule,
     AuthModule,
     JobsModule,
-    CleanupModule
+    CleanupModule,
+    ProposalsModule
   ],
   controllers: [AppController],
   providers: [AppService],

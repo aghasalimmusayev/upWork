@@ -2,6 +2,8 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { CommonEntity } from "./common.entity";
 import { TokenEntity } from "./token.entity";
 import { JobEntity } from "./job.entity";
+import { Proposal } from "./proposal.entity";
+import { Exclude } from "class-transformer";
 
 @Entity()
 export class User extends CommonEntity {
@@ -9,6 +11,7 @@ export class User extends CommonEntity {
     email: string
 
     @Column()
+    @Exclude()
     password: string
 
     @Column({ type: 'text' })
@@ -28,4 +31,7 @@ export class User extends CommonEntity {
 
     @OneToMany(() => JobEntity, (jobs) => jobs.user)
     jobs: JobEntity[]
+
+    @OneToMany(() => Proposal, (prposals) => prposals.user)
+    proposals: Proposal[]
 }

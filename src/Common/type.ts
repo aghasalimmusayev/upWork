@@ -14,3 +14,14 @@ export enum PaymentType {
     HOURLY = 'HOURLY'
 }
 
+export enum statusProposal {
+    PENDING = 'PENDING',
+    ACCEPTED = 'ACCEPTED',
+    REJECTED = 'REJECTED',
+    WITHDRAWN = 'WITHDRAWN'
+}
+
+export enum statusJob {
+    OPEN = 'OPEN',
+    CLOSE = 'CLOSED'
+}

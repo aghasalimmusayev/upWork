@@ -10,20 +10,13 @@ https://www.upwork.com/
 
 
 # Questions:
-- 1) 
+- 1) User-leri login olanda gore bilirik, 
+    amma user-leri ancaq admin create ede biler ve gore biler, 
+    adi freelancer ve ya client gore bilmez
+    Bes bunu nece hell edeceyik?
+- 2) 
 
 <!--Todo * DB-de token-i hashlayib saxlamaq lazimdi, bunu edende service-de deyisiklikler olacaq -->
 
-
-Proposal
-id
-jobId (Job)
-freelancerId (User)
-coverLetter
-bidAmount
-estimatedDays (bitereceyi muddet)
-status: PENDING | ACCEPTED | REJECTED | WITHDRAWN
-    client hələ baxmayıb | client bunu seçdi | client rədd etdi | freelancer özü geri götürdü
-createdAt
 
 

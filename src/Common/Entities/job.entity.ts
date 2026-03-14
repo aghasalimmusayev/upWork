@@ -1,6 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm"
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm"
 import { CommonEntity } from "./common.entity"
 import { User } from "./user.entity"
+import { Proposal } from "./proposal.entity"
+import { statusJob } from "../type"
 
 @Entity()
 export class JobEntity extends CommonEntity {
@@ -22,12 +24,15 @@ export class JobEntity extends CommonEntity {
     @Column('simple-array')
     skills: string[]
 
-    @Column({ type: 'text', default: 'OPEN' })
-    status: 'OPEN' | 'CLOSED'
+    @Column({ type: 'text', default: statusJob.OPEN })
+    status: statusJob
 
     @ManyToOne(() => User, (user) => user.jobs, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
     user: User
+
+    @OneToMany(() => Proposal, (proposal) => proposal.job)
+    proposal: Proposal[]
 }
 
 

@@ -20,7 +20,7 @@ export class AuthController {
     constructor(private authService: AuthService) { }
 
     @Throttle({ default: { ttl: 60000, limit: 3 } })
-    @Post('/signup')
+    @Post('/register')
     @Serialize(AuthResponseDto)
     async register(@Body() body: CreateUserDto, @Res({ passthrough: true }) res: Response) {
         const { user, accessToken, refreshToken } = await this.authService.signup(body)
@@ -35,7 +35,7 @@ export class AuthController {
     }
 
     @Throttle({ default: { ttl: 60000, limit: 5 } })
-    @Post('/signin')
+    @Post('/login')
     @Serialize(AuthResponseDto)
     async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
         const { user, accessToken, refreshToken } = await this.authService.signin(body)
