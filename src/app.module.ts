@@ -14,6 +14,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CleanupModule } from './cleanup/cleanup.module';
 import { ProposalsModule } from './proposals/proposals.module';
 import { Proposal } from './Common/Entities/proposal.entity';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { Proposal } from './Common/Entities/proposal.entity';
     AuthModule,
     JobsModule,
     CleanupModule,
-    ProposalsModule
+    ProposalsModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],

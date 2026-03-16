@@ -17,7 +17,6 @@ https://www.upwork.com/
 - 2) 
 
 <!--Todo * DB-de token-i hashlayib saxlamaq lazimdi, bunu edende service-de deyisiklikler olacaq -->
-<!--Todo * CORS yazlmalidi ve diger elave oyrendiklerine bax, ne varsa, HELMET falan -->
 <!--Todo * Mailer istifadesi, Proposal yaradilarken, job yaradan client-in email adresine mail. getsin  -->
 <!--Todo * Proposal accept reject olunarken proposal gonderenin email adresine mail getsin -->
 

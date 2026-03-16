@@ -92,6 +92,83 @@ Example use cases:
 
 # Project Structure
 
+```
+├── 📁 src
+│   ├── 📁 Common
+│   │   ├── 📁 Dtos
+│   │   │   ├── 📄 auth-response.dto.ts
+│   │   │   ├── 📄 change-password.dto.ts
+│   │   │   ├── 📄 create-job.dto.ts
+│   │   │   ├── 📄 create-user.dto.ts
+│   │   │   ├── 📄 createProposal.dto.ts
+│   │   │   ├── 📄 login.dto.ts
+│   │   │   ├── 📄 update-StatusProposal.dto.ts
+│   │   │   ├── 📄 update-statusJob.dto.ts
+│   │   │   ├── 📄 update-user.dto.ts
+│   │   │   ├── 📄 updateJob.dto.ts
+│   │   │   ├── 📄 updateProposal.dto.ts
+│   │   │   └── 📄 user-dto.ts
+│   │   ├── 📁 Entities
+│   │   │   ├── 📄 common.entity.ts
+│   │   │   ├── 📄 job.entity.ts
+│   │   │   ├── 📄 proposal.entity.ts
+│   │   │   ├── 📄 token.entity.ts
+│   │   │   └── 📄 user.entity.ts
+│   │   ├── 📄 jwt.ts
+│   │   └── 📄 type.ts
+│   ├── 📁 auth
+│   │   ├── 📄 auth.controller.spec.ts
+│   │   ├── 📄 auth.controller.ts
+│   │   ├── 📄 auth.module.ts
+│   │   ├── 📄 auth.service.spec.ts
+│   │   └── 📄 auth.service.ts
+│   ├── 📁 cleanup
+│   │   ├── 📄 cleanup.module.ts
+│   │   ├── 📄 cleanup.service.spec.ts
+│   │   └── 📄 cleanup.service.ts
+│   ├── 📁 decorators
+│   │   └── 📄 currentUser.decorator.ts
+│   ├── 📁 guards
+│   │   └── 📄 auth.guard.ts
+│   ├── 📁 interceptors
+│   │   └── 📄 serialize.interceptor.ts
+│   ├── 📁 jobs
+│   │   ├── 📄 jobs.controller.spec.ts
+│   │   ├── 📄 jobs.controller.ts
+│   │   ├── 📄 jobs.module.ts
+│   │   ├── 📄 jobs.service.spec.ts
+│   │   └── 📄 jobs.service.ts
+│   ├── 📁 proposals
+│   │   ├── 📄 proposals.controller.spec.ts
+│   │   ├── 📄 proposals.controller.ts
+│   │   ├── 📄 proposals.module.ts
+│   │   ├── 📄 proposals.service.spec.ts
+│   │   └── 📄 proposals.service.ts
+│   ├── 📁 users
+│   │   ├── 📄 users.controller.spec.ts
+│   │   ├── 📄 users.controller.ts
+│   │   ├── 📄 users.module.ts
+│   │   ├── 📄 users.service.spec.ts
+│   │   └── 📄 users.service.ts
+│   ├── 📄 app.controller.spec.ts
+│   ├── 📄 app.controller.ts
+│   ├── 📄 app.module.ts
+│   ├── 📄 app.service.ts
+│   └── 📄 main.ts
+├── 📁 test
+│   ├── 📄 app.e2e-spec.ts
+│   └── ⚙️ jest-e2e.json
+├── ⚙️ .gitignore
+├── ⚙️ .prettierrc
+├── 📝 README.md
+├── 📄 db.sqlite
+├── 📄 eslint.config.mjs
+├── ⚙️ example .env
+├── ⚙️ nest-cli.json
+├── ⚙️ package-lock.json
+├── ⚙️ package.json
+└── ⚙️ tsconfig.json
+```
 
 
 ---

@@ -10,6 +10,7 @@ import { generateAccessToken, generateRefreshToken } from 'src/Common/jwt';
 import { LoginDto } from 'src/Common/Dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import ms, { StringValue } from 'ms';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +18,8 @@ export class AuthService {
         @InjectRepository(User) private repo: Repository<User>,
         @InjectRepository(TokenEntity) private tokenRepo: Repository<TokenEntity>,
         private userService: UsersService,
-        private jwt: JwtService
+        private jwt: JwtService,
+        private readonly mailService: MailService
     ) { }
 
     async signup(data: CreateUserDto) {
@@ -39,6 +41,7 @@ export class AuthService {
             user
         })
         await this.tokenRepo.save(token)
+        await this.mailService.sendWelcome(user.email, user.name)
         return { user, accessToken, refreshToken }
     }
 
