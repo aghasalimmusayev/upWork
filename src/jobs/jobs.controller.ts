@@ -21,8 +21,8 @@ export class JobsController {
     }
 
     @Get()
-    getAllJobs(@CurrentUser() user: User) {
-        return this.jobService.getAll(user.id)
+    getAllJobs() {
+        return this.jobService.getAll()
     }
 
     @Get('/:id')

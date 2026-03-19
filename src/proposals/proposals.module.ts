@@ -6,12 +6,14 @@ import { Proposal } from 'src/Common/Entities/proposal.entity';
 import { UsersModule } from 'src/users/users.module';
 import { JobsModule } from 'src/jobs/jobs.module';
 import { JwtService } from '@nestjs/jwt';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Proposal]),
     UsersModule,
-    JobsModule
+    JobsModule,
+    MailModule
   ],
   providers: [ProposalsService, JwtService],
   controllers: [ProposalsController]

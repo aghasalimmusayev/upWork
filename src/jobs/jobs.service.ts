@@ -22,8 +22,8 @@ export class JobsService {
         return this.repo.save(newJob)
     }
 
-    async getAll(userId: number) {
-        return await this.repo.find({ where: { user: { id: userId } } })
+    async getAll() {
+        return await this.repo.find()
     }
 
     async findJob(id: number, userId: number) {
@@ -33,7 +33,13 @@ export class JobsService {
     }
 
     async findById(id: number) {
-        const job = await this.repo.findOne({ where: { id } })
+        const job = await this.repo.findOne({ where: { id }})
+        if (!job) throw new NotFoundException('Job not found')
+        return job
+    }
+
+    async findByUser(id: number) {
+        const job = await this.repo.findOne({ where: { id }, relations: ['user'] })
         if (!job) throw new NotFoundException('Job not found')
         return job
     }

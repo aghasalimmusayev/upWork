@@ -18,11 +18,11 @@ export class Proposal extends CommonEntity {
     @Column()
     estimatedDays: number
 
-    @ManyToOne(() => User, (user) => user.proposals)
+    @ManyToOne(() => User, (user) => user.proposals, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'userId' })
     user: User
 
-    @ManyToOne(() => JobEntity, (job) => job.proposal)
+    @ManyToOne(() => JobEntity, (job) => job.proposal, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'jobId' })
     job: JobEntity
 }

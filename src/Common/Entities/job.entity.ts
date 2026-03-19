@@ -9,7 +9,7 @@ export class JobEntity extends CommonEntity {
     @Column()
     title: string
 
-    @Column()
+    @Column({ nullable: true })
     description: string
 
     @Column({ type: 'text' })

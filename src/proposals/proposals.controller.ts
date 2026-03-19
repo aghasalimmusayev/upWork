@@ -23,7 +23,7 @@ export class ProposalsController {
 
     @Get()
     getProposals(@CurrentUser() user: User) {
-        return this.proposalService.getProposals(user.id)
+        return this.proposalService.getProposals()
     }
 
     @Get('/:id')

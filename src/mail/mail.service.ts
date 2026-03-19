@@ -13,4 +13,22 @@ export class MailService {
             context: { name }
         })
     }
+
+    async sendNotifyProposal(clientEmail: string, clientName: string, freelancerName: string, jobTitle: string) {
+        await this.mailerService.sendMail({
+            to: clientEmail,
+            subject: 'Recieved a new Proposal',
+            template: './proposal',
+            context: { clientName, freelancerName, jobTitle }
+        })
+    }
+
+    async sendNotifyProposalStatus(freelancerEmail: string, freelancerName: string, jobStatus: string, jobTitle: string) {
+        await this.mailerService.sendMail({
+            to: freelancerEmail,
+            subject: 'Your Proposal status updated',
+            template: './proposalStatus',
+            context: { jobStatus, jobTitle, freelancerName }
+        })
+    }
 }
