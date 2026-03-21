@@ -23,7 +23,7 @@ export class ProposalsController {
 
     @Get()
     getProposals(@CurrentUser() user: User) {
-        return this.proposalService.getProposals()
+        return this.proposalService.getProposals(user.id, user.role)
     }
 
     @Get('/:id')
@@ -33,16 +33,17 @@ export class ProposalsController {
 
     @Patch('/:id')
     updateProposal(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateProposalDto, @CurrentUser() user: User) {
-        return this.proposalService.updateProposal(body, id, user.id)
+        return this.proposalService.updateProposal(body, id, user.id, user.role)
     }
 
     @Patch('/status/:id')
+    @UseInterceptors(ClassSerializerInterceptor)
     updateStatus(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateStatusProposal, @CurrentUser() user: User) {
-        return this.proposalService.updateStatus(body.status, id, user.id)
+        return this.proposalService.updateStatus(body.status, id, user.id, user.role)
     }
 
     @Delete('/:id')
     removeProposal(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
-        return this.proposalService.delete(id, user.id)
+        return this.proposalService.delete(id, user.id, user.role)
     }
 }

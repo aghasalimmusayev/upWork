@@ -2,21 +2,27 @@ https://www.upwork.com/
 
 # users:
 1) 
-    - aga@gmail.com
-    - ams123456
-    - FREELANCER
-2) 
-    - mehdi@gmail.com
-    - mhd123456
-    - CLIENT
-3) 
     - aga77ams@hotmail.com
     - ams123456
+    - Agasalim
     - FREELANCER
-4) 
+2) 
     - mehdi21musayev@gmail.com
-    - mhd123465
+    - mhd123456
+    - Mehdi
     - CLIENT
+3) 
+    - mehdi@gmail.com
+    - mhd123456
+    - MehdiM
+    - CLIENT
+5) 
+    - leyla16lam@gmail.com
+    - ams123456
+    - FREELANCER
+    - Leyla
+    id:3 => Mehdi.job
+
 
 # Questions:
 - 1) User-leri login olanda gore bilirik, 
@@ -25,11 +31,9 @@ https://www.upwork.com/
     Bes bunu nece hell edeceyik?
 - 2) 
 
+<!--Todo * Ancaq admin butun userleri, joblari ve proposallari gore biler, diger hallarda her user oz jobunu, proposalini ve oz profilini gore biler -->
 <!--Todo * DB-de token-i hashlayib saxlamaq lazimdi, bunu edende service-de deyisiklikler olacaq -->
 <!--Todo * Her user oz job-larini deyise ve ya sile biler -->
-<!--Todo * Her user oz proposal-larini deyise ve ya sile biler -->
 <!--! * ProposalUpdate-de response-da user-in password-u de gelir -->
-<!--! Client olaraq login olanda proposals bos gelir -->
-<!--Todo * Proposal ve Job service-lerinde butun metodlar kokunden yoxlanilmalidir -->
 
 

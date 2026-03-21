@@ -33,7 +33,7 @@ export class JobsService {
     }
 
     async findById(id: number) {
-        const job = await this.repo.findOne({ where: { id }})
+        const job = await this.repo.findOne({ where: { id } })
         if (!job) throw new NotFoundException('Job not found')
         return job
     }
@@ -44,7 +44,8 @@ export class JobsService {
         return job
     }
 
-    async updateJob(id: number, userId: number, data: UpdateJobDto) {
+    async updateJob(id: number, userId: number, userRole: string, data: UpdateJobDto) {
+        if (userRole !== 'CLIENT') throw new ForbiddenException('Only job owner can update the job')
         const job = await this.findJob(id, userId)
         if (!job) throw new NotFoundException('Job not found')
         const result = await this.repo.update(job.id, { ...data, updatedAt: new Date() })
@@ -52,7 +53,8 @@ export class JobsService {
         return await this.findJob(id, userId)
     }
 
-    async closeJob(id: number, userId: number, status: statusJob) {
+    async closeJob(id: number, userId: number, userRole: string, status: statusJob) {
+        if (userRole !== 'CLIENT') throw new ForbiddenException('Only job owner can update the job')
         const job = await this.findJob(id, userId)
         if (!job) throw new NotFoundException('Job not found')
         job.status = status
@@ -61,8 +63,9 @@ export class JobsService {
         return { message: 'The job CLOSED', job }
     }
 
-    async delete(id: number, userId: number) {
-        const job = await this.repo.findOne({ where: { id, user: { id: userId } } })
+    async delete(id: number, userId: number, userRole: string,) {
+        if (userRole !== 'CLIENT') throw new ForbiddenException('Only job owner can update the job')
+        const job = await this.findJob(id, userId)
         if (!job) throw new NotFoundException('Job not found')
         await this.repo.remove(job)
         return { message: 'The Job has been removed' }

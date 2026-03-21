@@ -40,10 +40,9 @@ export class ProposalsService {
         return proposal
     }
 
-    async getProposals() {
-        // if (role === 'FREELANCER') return this.repo.find({ where: { user: { id: userId } }, relations: ['job'] })
-        // else return this.repo.find({ where: { job: { user: { id: userId } } }, relations: ['job', 'user'] })
-        return this.repo.find()
+    async getProposals(userId: number, userRole: string) {
+        if (userRole === 'FREELANCER') return this.repo.find({ where: { user: { id: userId } }, relations: ['job'] })
+        else return this.repo.find({ where: { job: { user: { id: userId } } }, relations: ['job'] })
     }
 
     async findProposal(userId: number, id: number) {
@@ -52,7 +51,8 @@ export class ProposalsService {
         return proposal
     }
 
-    async updateProposal(data: UpdateProposalDto, id: number, userId: number) {
+    async updateProposal(data: UpdateProposalDto, id: number, userId: number, userRole: string) {
+        if (userRole !== 'FREELANCER') throw new ForbiddenException('Only FREELANCER can update a proposal')
         const proposal = await this.repo.findOne({
             where: { id, user: { id: userId } },
             relations: ['job']
@@ -64,10 +64,10 @@ export class ProposalsService {
             { ...data, updatedAt: new Date() }
         )
         if (updated.affected === 0) throw new NotFoundException('The proposal not found')
-        return await this.findProposal(id, userId)
+        return await this.findProposal(userId, id)
     }
 
-    async updateStatus(status: statusProposal, id: number, userId: number) {
+    async updateStatus(status: statusProposal, id: number, userId: number, userRole: string) {
         const proposal = await this.repo.findOne({
             where: { id },
             relations: ['job', 'job.user', 'user']
@@ -76,33 +76,32 @@ export class ProposalsService {
         if (proposal.status !== statusProposal.PENDING) {
             throw new BadRequestException(`You cannot update status, proposal is already ${proposal.status}`)
         }
-
-        const isJobOwner = proposal.job.user.id === userId
-        const isFreelancer = proposal.user.id === userId
-        if (isJobOwner) {
-            if (status === statusProposal.WITHDRAWN) throw new ForbiddenException('Job owner cannot withdraw a proposal')
-        }
-        else if (isFreelancer) {
+        if (userRole === 'FREELANCER') {
             if (status !== statusProposal.WITHDRAWN) throw new ForbiddenException('Freelancer can only withdraw a proposal')
+            if (proposal.user.id !== userId) throw new ForbiddenException('Only proposal owner can update this proposal status')
         }
-        else throw new ForbiddenException('You have no permission to update this proposal')
-
+        else if (userRole === 'CLIENT') {
+            if (status === statusProposal.WITHDRAWN) throw new ForbiddenException('Job owner cannot withdraw a proposal')
+            if (proposal.job.user.id !== userId) throw new ForbiddenException('Only job owner can update proposal status')
+        }
         proposal.status = status
         proposal.updatedAt = new Date()
         await this.repo.save(proposal)
         await this.mailService.sendNotifyProposalStatus(
-            isJobOwner ? proposal.user.email : proposal.job.user.email,
-            isJobOwner ? proposal.user.name : proposal.job.user.name,
+            userRole === 'FREELANCER' ? proposal.job.user.email : proposal.user.email,
+            userRole === 'FREELANCER' ? proposal.job.user.name : proposal.user.name,
             status,
             proposal.job.title
         )
         return { message: `The status is ${proposal.status} now`, proposal }
     }
 
-    async delete(id: number, userId: number) {
+    async delete(id: number, userId: number, userRole: string) {
+        if (userRole !== 'FREELANCER') throw new ForbiddenException('Only FREELANCER can delete a proposal')
         const proposal = await this.repo.findOne({ where: { id, user: { id: userId } } })
         if (!proposal) throw new NotFoundException('Proposal not found')
         await this.repo.remove(proposal)
         return { message: 'The proposal has been removed' }
     }
 }
+

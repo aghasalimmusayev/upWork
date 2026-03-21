@@ -32,16 +32,16 @@ export class JobsController {
 
     @Patch('/:id')
     updateJob(@Body() body: UpdateJobDto, @CurrentUser() user: User, @Param('id', ParseIntPipe) id: number) {
-        return this.jobService.updateJob(id, user.id, body)
+        return this.jobService.updateJob(id, user.id, user.role, body)
     }
 
     @Patch('/status/:id')
     updateStatus(@Body() body: UpdateStatusJob, @Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
-        return this.jobService.closeJob(id, user.id, body.status)
+        return this.jobService.closeJob(id, user.id, user.role, body.status)
     }
 
     @Delete('/:id')
     deleteJob(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
-        return this.jobService.delete(id, user.id)
+        return this.jobService.delete(id, user.id, user.role,)
     }
 }
