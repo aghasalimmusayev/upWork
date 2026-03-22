@@ -7,9 +7,11 @@ import { CurrentUser } from 'src/decorators/currentUser.decorator';
 import { User } from 'src/Common/Entities/user.entity';
 import { UpdateJobDto } from 'src/Common/Dtos/updateJob.dto';
 import { UpdateStatusJob } from 'src/Common/Dtos/update-statusJob.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RoleGuard } from 'src/guards/role.guard';
 
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('jobs')
 export class JobsController {
     constructor(private jobService: JobsService) { }
@@ -43,5 +45,11 @@ export class JobsController {
     @Delete('/:id')
     deleteJob(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
         return this.jobService.delete(id, user.id, user.role,)
+    }
+
+    @Delete('/admin/:id')
+    @Roles('ADMIN')
+    deleteByAdmin(@Param('id', ParseIntPipe) id: number) {
+        return this.jobService.adminDelete(id)
     }
 }

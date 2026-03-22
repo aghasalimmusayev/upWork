@@ -37,7 +37,6 @@ export class ProposalsController {
     }
 
     @Patch('/status/:id')
-    @UseInterceptors(ClassSerializerInterceptor)
     updateStatus(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateStatusProposal, @CurrentUser() user: User) {
         return this.proposalService.updateStatus(body.status, id, user.id, user.role)
     }
@@ -45,5 +44,10 @@ export class ProposalsController {
     @Delete('/:id')
     removeProposal(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
         return this.proposalService.delete(id, user.id, user.role)
+    }
+
+    @Delete('/admin/:id')
+    removeByAdmin(@Param('id', ParseIntPipe) id: number) {
+        return this.proposalService.adminDelete(id)
     }
 }

@@ -1,7 +1,7 @@
 import { Request } from "express"
 import { User } from "./Entities/user.entity"
 
-export type JwtPayload = { id: number, email: string, role: 'CLIENT' | 'FREELANCER' }
+export type JwtPayload = { id: number, email: string, role: 'CLIENT' | 'FREELANCER' | 'ADMIN' }
 
 export type SessionData = { userId: number | null }
 

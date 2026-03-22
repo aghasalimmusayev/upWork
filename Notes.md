@@ -11,18 +11,24 @@ https://www.upwork.com/
     - mhd123456
     - Mehdi
     - CLIENT
+    id:1 => job
 3) 
     - mehdi@gmail.com
     - mhd123456
     - MehdiM
     - CLIENT
+    id:2 => job
 5) 
     - leyla16lam@gmail.com
     - ams123456
     - FREELANCER
     - Leyla
     id:3 => Mehdi.job
-
+6) 
+    - aga77ams@gmail.com
+    - Admin123456
+    - Admin
+    - Agasalim
 
 # Questions:
 - 1) User-leri login olanda gore bilirik, 
@@ -31,9 +37,6 @@ https://www.upwork.com/
     Bes bunu nece hell edeceyik?
 - 2) 
 
-<!--Todo * Ancaq admin butun userleri, joblari ve proposallari gore biler, diger hallarda her user oz jobunu, proposalini ve oz profilini gore biler -->
 <!--Todo * DB-de token-i hashlayib saxlamaq lazimdi, bunu edende service-de deyisiklikler olacaq -->
-<!--Todo * Her user oz job-larini deyise ve ya sile biler -->
-<!--! * ProposalUpdate-de response-da user-in password-u de gelir -->
 
 

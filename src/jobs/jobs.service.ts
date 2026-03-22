@@ -70,4 +70,11 @@ export class JobsService {
         await this.repo.remove(job)
         return { message: 'The Job has been removed' }
     }
+
+    async adminDelete(id: number) {
+        const job = await this.repo.findOne({ where: { id } })
+        if (!job) throw new NotFoundException('Job not found')
+        await this.repo.remove(job)
+        return { message: 'The job has been removed by Admin' }
+    }
 }

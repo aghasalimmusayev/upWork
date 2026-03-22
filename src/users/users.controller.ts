@@ -6,38 +6,37 @@ import { ChangePassword } from 'src/Common/Dtos/change-password.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDto } from 'src/Common/Dtos/user-dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { RoleGuard } from 'src/guards/role.guard';
+import { CurrentUser } from 'src/decorators/currentUser.decorator';
+import { User } from 'src/Common/Entities/user.entity';
 
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('users')
 export class UsersController {
     constructor(private userService: UsersService) { }
-    
+
     @Get('/all')
+    @Roles('ADMIN')
     @Serialize(UserDto)
     getAllUsers() {
         return this.userService.getUsers()
     }
 
-    @Get('/:id')
-    @Serialize(UserDto)
-    findUser(@Param('id', ParseIntPipe) id: number) {
-        return this.userService.findUser(id)
-    }
-
     @Patch('/:id')
     @Serialize(UserDto)
-    updateUser(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateUserDto) {
-        return this.userService.update(id, body)
+    updateUser(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateUserDto, @CurrentUser() user: User) {
+        return this.userService.update(id, body, user.id)
     }
 
     @Patch('/password/:id')
-    updatePassword(@Param('id', ParseIntPipe) id: number, @Body() body: ChangePassword) {
-        return this.userService.updatePassword(id, body.password)
+    updatePassword(@Param('id', ParseIntPipe) id: number, @Body() body: ChangePassword, @CurrentUser() user: User) {
+        return this.userService.updatePassword(id, body.password, user.id)
     }
 
     @Delete('/:id')
-    removeUser(@Param('id', ParseIntPipe) id: number) {
-        return this.userService.remove(id)
+    removeUser(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+        return this.userService.remove(id, user.id)
     }
 }

@@ -27,7 +27,8 @@ export class UsersService {
         return await this.repo.findOne({ where: { email } })
     }
 
-    async update(id: number, data: UpdateUserDto) {
+    async update(id: number, data: UpdateUserDto, currentUserId: number) {
+        if (id !== currentUserId) throw new ForbiddenException('You can only update your own profile')
         const user = await this.findUser(id)
         if (!user) throw new NotFoundException('User not found')
         const result = await this.repo.update(user.id, { ...data, updatedAt: new Date() })
@@ -35,7 +36,8 @@ export class UsersService {
         return await this.findUser(user.id)
     }
 
-    async updatePassword(id: number, password: string) {
+    async updatePassword(id: number, password: string, currentUserId: number) {
+        if (id !== currentUserId) throw new ForbiddenException('You can only change your own password')
         const user = await this.findUser(id)
         if (!user) throw new NotFoundException('User not found')
         await this.tokenRepo.update(
@@ -50,7 +52,8 @@ export class UsersService {
         return { message: 'Your password has been updated' }
     }
 
-    async remove(id: number) {
+    async remove(id: number, currentUserId: number) {
+        if (id !== currentUserId) throw new ForbiddenException('You can only delete your own profile')
         const user = await this.repo.findOne({ where: { id } })
         if (!user) throw new NotFoundException('User not found')
         await this.repo.remove(user)

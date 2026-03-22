@@ -15,7 +15,7 @@ export class User extends CommonEntity {
     password: string
 
     @Column({ type: 'text' })
-    role: 'CLIENT' | 'FREELANCER'
+    role: 'CLIENT' | 'FREELANCER' | 'ADMIN'
 
     @Column({ type: 'varchar', nullable: true })
     name: string

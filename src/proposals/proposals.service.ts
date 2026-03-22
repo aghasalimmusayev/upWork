@@ -58,6 +58,9 @@ export class ProposalsService {
             relations: ['job']
         })
         if (!proposal) throw new NotFoundException('Proposal not found')
+        if (proposal.status !== 'PENDING') {
+            throw new BadRequestException(`You cant update this proposal, it is already ${proposal.status}`)
+        }
         if (proposal?.job.status === 'CLOSED') throw new BadRequestException('This job is already closed')
         const updated = await this.repo.update(
             { id, user: { id: userId } },
@@ -102,6 +105,13 @@ export class ProposalsService {
         if (!proposal) throw new NotFoundException('Proposal not found')
         await this.repo.remove(proposal)
         return { message: 'The proposal has been removed' }
+    }
+
+    async adminDelete(id: number) {
+        const proposal = await this.repo.findOne({ where: { id } })
+        if (!proposal) throw new NotFoundException('Not found')
+        await this.repo.remove(proposal)
+        return { message: 'The proposal has beed removed by Admin' }
     }
 }
 
