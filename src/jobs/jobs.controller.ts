@@ -42,14 +42,14 @@ export class JobsController {
         return this.jobService.closeJob(id, user.id, user.role, body.status)
     }
 
-    @Delete('/:id')
-    deleteJob(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
-        return this.jobService.delete(id, user.id, user.role,)
-    }
-
     @Delete('/admin/:id')
     @Roles('ADMIN')
     deleteByAdmin(@Param('id', ParseIntPipe) id: number) {
         return this.jobService.adminDelete(id)
+    }
+
+    @Delete('/:id')
+    deleteJob(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+        return this.jobService.delete(id, user.id, user.role,)
     }
 }

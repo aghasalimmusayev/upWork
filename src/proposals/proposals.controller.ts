@@ -41,13 +41,13 @@ export class ProposalsController {
         return this.proposalService.updateStatus(body.status, id, user.id, user.role)
     }
 
-    @Delete('/:id')
-    removeProposal(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
-        return this.proposalService.delete(id, user.id, user.role)
-    }
-
     @Delete('/admin/:id')
     removeByAdmin(@Param('id', ParseIntPipe) id: number) {
         return this.proposalService.adminDelete(id)
+    }
+
+    @Delete('/:id')
+    removeProposal(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+        return this.proposalService.delete(id, user.id, user.role)
     }
 }
