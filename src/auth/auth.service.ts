@@ -68,13 +68,25 @@ export class AuthService {
     }
 
     async refresh(refreshToken: string) {
+        if (!refreshToken) throw new UnauthorizedException('Refresh token missing')
         const token = await this.tokenRepo.findOne({
             where: { tokenHash: refreshToken },
             relations: ['user']
         })
         if (!token) throw new UnauthorizedException('Invalid Refresh Token')
+        if (token.revoke) {
+            await this.tokenRepo.update(
+                { user: { id: token.user.id }, revoke: false },
+                { revoke: true }
+            )
+            throw new UnauthorizedException('Token reuse detected, All sessions revoked.')
+        }
+        if (token.expiresAt < new Date()) {
+            await this.tokenRepo.update({ id: token.id }, { revoke: true })
+            throw new UnauthorizedException('Refresh token expired')
+        }
         const user = token.user
-        await this.tokenRepo.remove(token)
+        await this.tokenRepo.update({ id: token.id }, { revoke: true })
         const accessToken = await generateAccessToken(this.jwt, {
             id: user.id,
             email: user.email,

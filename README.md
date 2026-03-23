@@ -305,12 +305,18 @@ User → POST /auth/login
 Refresh Token in Cookie → POST /auth/refresh
                                         │
                                         ▼
-                              Old token is removed
-                              New token pair is generated
+                              Token validated (revoke/expired?)
                                         │
-                                        ▼
-                              New Access Token is returned
-                              New Refresh Token is written to cookie
+                              ┌─────────┴─────────┐
+                            Invalid             Valid
+                              │                   │
+                              ▼                   ▼
+                      Error returned        Old token revoked
+                    (all sessions may       New token pair generated
+                    be revoked on                 │
+                    reuse attack)                 ▼
+                                            New Access Token returned
+                                            New Refresh Token written to cookie
 ```
 
 ---
