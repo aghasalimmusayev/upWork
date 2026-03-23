@@ -1,0 +1,27 @@
+/* AUTH PAGES */
+.auth-page { min-height: 100vh; background: linear-gradient(135deg, #f0fdf4 0%, #dbeafe 100%); display: flex; align-items: center; justify-content: center; padding: 24px; }
+.auth-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 440px; overflow: hidden; }
+.auth-header { background: linear-gradient(135deg, var(--dark) 0%, #2d3a6b 100%); padding: 32px 36px 28px; text-align: center; }
+.auth-logo { font-size: 1.8rem; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+.auth-logo span { color: white; }
+.auth-subtitle { color: rgba(255,255,255,.7); font-size: 0.875rem; }
+.auth-body { padding: 32px 36px; }
+.auth-title { font-size: 1.25rem; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
+.auth-desc { font-size: 0.875rem; color: var(--gray-500); margin-bottom: 24px; }
+.auth-footer { text-align: center; margin-top: 20px; font-size: 0.875rem; color: var(--gray-500); }
+.auth-footer a { color: var(--primary); font-weight: 600; }
+.auth-footer a:hover { text-decoration: underline; }
+.role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.role-option { border: 2px solid var(--gray-300); border-radius: var(--radius); padding: 14px 12px; text-align: center; cursor: pointer; transition: var(--transition); }
+.role-option input { display: none; }
+.role-option:has(input:checked) { border-color: var(--primary); background: var(--primary-light); }
+.role-option .role-icon { font-size: 1.5rem; margin-bottom: 6px; }
+.role-option .role-name { font-weight: 600; font-size: 0.875rem; }
+.role-option .role-desc { font-size: 0.75rem; color: var(--gray-500); margin-top: 2px; }
+.divider-text { display: flex; align-items: center; gap: 12px; margin: 20px 0; color: var(--gray-500); font-size: 0.82rem; }
+.divider-text::before, .divider-text::after { content: ''; flex: 1; height: 1px; background: var(--gray-300); }
+
+@media (max-width: 480px) {
+  .auth-body { padding: 24px 20px; }
+  .auth-header { padding: 24px 20px 20px; }
+}

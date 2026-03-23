@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — FreeLance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <style>
+    body { background: #f1f5f9; }
+    .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 0; min-height: calc(100vh - 64px); }
+    .admin-aside { background: var(--dark); padding: 20px 12px; }
+    .admin-brand { color: white; font-size: 1rem; font-weight: 800; padding: 8px 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .admin-main { padding: 24px; }
+    .admin-content { display: none; }
+    .admin-content.active { display: block; animation: fadeIn .2s ease; }
+    @media (max-width: 768px) {
+      .admin-layout { grid-template-columns: 1fr; }
+      .admin-aside { display: none; }
+      .admin-aside.open { display: block; }
+      .admin-main { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="admin-layout">
+    <!-- ADMIN SIDEBAR -->
+    <aside class="admin-aside" id="adminAside">
+      <div class="admin-brand">⚙️ Admin Panel</div>
+      <nav id="adminNav">
+        <button class="admin-sidebar-link active" onclick="showSection('overview', this)"><span class="icon">📊</span>İcmal</button>
+        <button class="admin-sidebar-link" onclick="showSection('users', this)"><span class="icon">👥</span>İstifadəçilər</button>
+        <button class="admin-sidebar-link" onclick="showSection('jobs', this)"><span class="icon">💼</span>İşlər</button>
+        <button class="admin-sidebar-link" onclick="showSection('proposals', this)"><span class="icon">📄</span>Müraciətlər</button>
+        <div style="height:1px;background:rgba(255,255,255,.1);margin:12px 0"></div>
+        <a href="profile.html" class="admin-sidebar-link"><span class="icon">👤</span>Profilim</a>
+        <button class="admin-sidebar-link" onclick="doLogout()" style="color:#f87171"><span class="icon">🚪</span>Çıxış</button>
+      </nav>
+    </aside>
+
+    <!-- ADMIN MAIN -->
+    <main class="admin-main">
+      <!-- OVERVIEW -->
+      <div class="admin-content active" id="section-overview">
+        <h2 class="mb-24">📊 Admin İcmalı</h2>
+        <div class="admin-grid" id="adminStats">
+          <div class="admin-stat-card"><div class="admin-stat-icon">👥</div><div class="admin-stat-number" id="statTotalUsers">-</div><div class="admin-stat-label">Ümumi İstifadəçi</div></div>
+          <div class="admin-stat-card blue"><div class="admin-stat-icon">💼</div><div class="admin-stat-number" id="statTotalJobs">-</div><div class="admin-stat-label">Ümumi İş</div></div>
+          <div class="admin-stat-card orange"><div class="admin-stat-icon">📄</div><div class="admin-stat-number" id="statTotalProps">-</div><div class="admin-stat-label">Ümumi Müraciət</div></div>
+          <div class="admin-stat-card green"><div class="admin-stat-icon">✅</div><div class="admin-stat-number" id="statOpenJobs">-</div><div class="admin-stat-label">Açıq İşlər</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap" id="overviewTables">
+          <div class="card">
+            <div class="card-header"><h4>Son İstifadəçilər</h4></div>
+            <div id="recentUsersTable"><div class="spinner"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h4>Son İşlər</h4></div>
+            <div id="recentJobsTable"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="admin-content" id="section-users">
+        <div class="section-header mb-24">
+          <h2>👥 İstifadəçilər</h2>
+          <div class="d-flex gap-8">
+            <input class="form-control" type="text" id="userSearch" placeholder="Ad, e-mail axtar..." oninput="filterUsers()" style="width:200px" />
+            <select class="form-control" id="userRoleFilter" onchange="filterUsers()" style="width:130px">
+              <option value="">Bütün Rollar</option>
+              <option value="CLIENT">Client</option>
+              <option value="FREELANCER">Freelancer</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Ad Soyad</th><th>E-mail</th><th>Rol</th><th>Telefon</th><th>Qeydiyyat</th><th>Əməliyyat</th></tr>
+            </thead>
+            <tbody id="usersTableBody"><tr><td colspan="7" class="text-center"><div class="spinner" style="margin:20px auto;width:24px;height:24px;border-width:2px"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div id="usersCount" class="text-muted mt-8"></div>
+      </div>
+
+      <!-- JOBS -->
+      <div class="admin-content" id="section-jobs">
+        <div class="section-header mb-24">
+          <h2>💼 İşlər</h2>
+          <div class="d-flex gap-8">
+            <input class="form-control" type="text" id="jobSearch" placeholder="İş axtar..." oninput="filterJobs()" style="width:200px" />
+            <select class="form-control" id="jobStatusFilter" onchange="filterJobs()" style="width:130px">
+              <option value="">Bütün Statuslar</option>
+              <option value="OPEN">Açıq</option>
+              <option value="CLOSED">Bağlı</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>Başlıq</th><th>Kateqoriya</th><th>Qiymət</th><th>Status</th><th>Tarix</th><th>Əməliyyat</th></tr>
+            </thead>
+            <tbody id="jobsTableBody"><tr><td colspan="7" class="text-center"><div class="spinner" style="margin:20px auto;width:24px;height:24px;border-width:2px"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div id="jobsCount" class="text-muted mt-8"></div>
+      </div>
+
+      <!-- PROPOSALS -->
+      <div class="admin-content" id="section-proposals">
+        <div class="section-header mb-24">
+          <h2>📄 Müraciətlər</h2>
+          <select class="form-control" id="propStatusFilter" onchange="filterProposals()" style="width:160px">
+            <option value="">Bütün Statuslar</option>
+            <option value="PENDING">Gözləyir</option>
+            <option value="ACCEPTED">Qəbul Edildi</option>
+            <option value="REJECTED">Rədd Edildi</option>
+            <option value="WITHDRAWN">Geri Çəkildi</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>İş</th><th>Məbləğ</th><th>Müddət</th><th>Status</th><th>Tarix</th><th>Əməliyyat</th></tr>
+            </thead>
+            <tbody id="propsTableBody"><tr><td colspan="7" class="text-center"><div class="spinner" style="margin:20px auto;width:24px;height:24px;border-width:2px"></div></td></tr></tbody>
+          </table>
+        </div>
+        <div id="propsCount" class="text-muted mt-8"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    if (!requireAdmin()) throw new Error('Not admin');
+    renderNavbar('admin');
+
+    let allUsers = [], allJobs = [], allProposals = [];
+
+    // Section switch
+    function showSection(name, btn) {
+      document.querySelectorAll('.admin-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.admin-sidebar-link').forEach(b => b.classList.remove('active'));
+      document.getElementById(`section-${name}`)?.classList.add('active');
+      if (btn) btn.classList.add('active');
+    }
+
+    async function loadAll() {
+      try {
+        [allUsers, allJobs, allProposals] = await Promise.all([
+          UsersAPI.getAll(),
+          JobsAPI.getAll(),
+          ProposalsAPI.getAll()
+        ]);
+        renderStats();
+        renderOverview();
+        renderUsers(allUsers);
+        renderJobs(allJobs);
+        renderProposals(allProposals);
+      } catch (err) {
+        showToast('Məlumatlar yüklənə bilmədi: ' + getErrorMessage(err), 'error');
+      }
+    }
+
+    function renderStats() {
+      document.getElementById('statTotalUsers').textContent = allUsers.length;
+      document.getElementById('statTotalJobs').textContent = allJobs.length;
+      document.getElementById('statTotalProps').textContent = allProposals.length;
+      document.getElementById('statOpenJobs').textContent = allJobs.filter(j => j.status === 'OPEN').length;
+    }
+
+    function renderOverview() {
+      // Recent users
+      const recentUsers = allUsers.slice(-5).reverse();
+      document.getElementById('recentUsersTable').innerHTML = `
+        <table>
+          <thead><tr><th>Ad</th><th>Rol</th><th>Tarix</th></tr></thead>
+          <tbody>${recentUsers.map(u => `
+            <tr>
+              <td><div style="font-weight:600">${escHtml(u.name)} ${escHtml(u.surname||'')}</div><div style="font-size:.78rem;color:var(--gray-500)">${escHtml(u.email)}</div></td>
+              <td><span class="${badgeForStatus(u.role)}">${u.role}</span></td>
+              <td style="font-size:.8rem">${formatDate(u.createdAt)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+
+      const recentJobs = allJobs.slice(-5).reverse();
+      document.getElementById('recentJobsTable').innerHTML = `
+        <table>
+          <thead><tr><th>Başlıq</th><th>Qiymət</th><th>Status</th></tr></thead>
+          <tbody>${recentJobs.map(j => `
+            <tr>
+              <td style="font-weight:600">${escHtml(j.title)}</td>
+              <td>$${j.price}</td>
+              <td><span class="${badgeForStatus(j.status)}">${j.status === 'OPEN' ? 'Açıq' : 'Bağlı'}</span></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>`;
+    }
+
+    // ===== USERS =====
+    function renderUsers(users) {
+      document.getElementById('usersCount').textContent = `${users.length} istifadəçi`;
+      if (users.length === 0) {
+        document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="7" class="text-center text-muted">İstifadəçi tapılmadı</td></tr>`;
+        return;
+      }
+      document.getElementById('usersTableBody').innerHTML = users.map((u, i) => `
+        <tr>
+          <td style="color:var(--gray-500)">${i+1}</td>
+          <td>
+            <div class="d-flex align-center gap-8">
+              <div class="avatar" style="width:30px;height:30px;font-size:.78rem">${getInitials(u.name, u.surname)}</div>
+              <div><div style="font-weight:600;font-size:.875rem">${escHtml(u.name)} ${escHtml(u.surname||'')}</div></div>
+            </div>
+          </td>
+          <td style="font-size:.82rem">${escHtml(u.email)}</td>
+          <td><span class="${badgeForStatus(u.role)}">${u.role}</span></td>
+          <td style="font-size:.82rem">${escHtml(u.phone||'-')}</td>
+          <td style="font-size:.78rem;color:var(--gray-500)">${formatDate(u.createdAt)}</td>
+          <td>
+            ${u.role !== 'ADMIN' ? `<button class="btn btn-sm btn-danger" onclick="adminDeleteUser(${u.id}, '${escHtml(u.name)}')">🗑️</button>` : '<span class="text-muted">-</span>'}
+          </td>
+        </tr>`).join('');
+    }
+
+    function filterUsers() {
+      const q = document.getElementById('userSearch').value.toLowerCase();
+      const role = document.getElementById('userRoleFilter').value;
+      const filtered = allUsers.filter(u => {
+        const matchQ = !q || u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.surname?.toLowerCase().includes(q);
+        const matchR = !role || u.role === role;
+        return matchQ && matchR;
+      });
+      renderUsers(filtered);
+    }
+
+    async function adminDeleteUser(id, name) {
+      const ok = await confirmDialog(`"${name}" adlı istifadəçini silmək istədiyinizə əminsinizmi?`);
+      if (!ok) return;
+      try {
+        await UsersAPI.delete(id);
+        allUsers = allUsers.filter(u => u.id !== id);
+        renderUsers(allUsers);
+        renderStats();
+        showToast('İstifadəçi silindi ✅', 'success');
+      } catch (err) {
+        showToast(getErrorMessage(err), 'error');
+      }
+    }
+
+    // ===== JOBS =====
+    function renderJobs(jobs) {
+      document.getElementById('jobsCount').textContent = `${jobs.length} iş`;
+      if (jobs.length === 0) {
+        document.getElementById('jobsTableBody').innerHTML = `<tr><td colspan="7" class="text-center text-muted">İş tapılmadı</td></tr>`;
+        return;
+      }
+      document.getElementById('jobsTableBody').innerHTML = jobs.map((j, i) => `
+        <tr>
+          <td style="color:var(--gray-500)">${i+1}</td>
+          <td style="font-weight:600;max-width:180px;font-size:.875rem">${escHtml(j.title)}</td>
+          <td style="font-size:.82rem">${escHtml(j.category)}</td>
+          <td><strong>$${j.price}</strong> <span style="font-size:.75rem;color:var(--gray-500)">${j.paymentType === 'FIXED' ? 'Sabit' : 'Saatlıq'}</span></td>
+          <td><span class="${badgeForStatus(j.status)}">${j.status === 'OPEN' ? 'Açıq' : 'Bağlı'}</span></td>
+          <td style="font-size:.78rem;color:var(--gray-500)">${formatDate(j.createdAt)}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="adminDeleteJob(${j.id})">🗑️ Sil</button></td>
+        </tr>`).join('');
+    }
+
+    function filterJobs() {
+      const q = document.getElementById('jobSearch').value.toLowerCase();
+      const status = document.getElementById('jobStatusFilter').value;
+      const filtered = allJobs.filter(j => {
+        const matchQ = !q || j.title?.toLowerCase().includes(q) || j.category?.toLowerCase().includes(q);
+        const matchS = !status || j.status === status;
+        return matchQ && matchS;
+      });
+      renderJobs(filtered);
+    }
+
+    async function adminDeleteJob(id) {
+      const ok = await confirmDialog('Bu işi silmək istədiyinizə əminsinizmi?');
+      if (!ok) return;
+      try {
+        await JobsAPI.adminDelete(id);
+        allJobs = allJobs.filter(j => j.id !== id);
+        renderJobs(allJobs);
+        renderStats();
+        showToast('İş silindi ✅', 'success');
+      } catch (err) {
+        showToast(getErrorMessage(err), 'error');
+      }
+    }
+
+    // ===== PROPOSALS =====
+    const propStatusLabels = { PENDING: 'Gözləyir', ACCEPTED: 'Qəbul edildi', REJECTED: 'Rədd edildi', WITHDRAWN: 'Geri çəkildi' };
+
+    function renderProposals(props) {
+      document.getElementById('propsCount').textContent = `${props.length} müraciət`;
+      if (props.length === 0) {
+        document.getElementById('propsTableBody').innerHTML = `<tr><td colspan="7" class="text-center text-muted">Müraciət tapılmadı</td></tr>`;
+        return;
+      }
+      document.getElementById('propsTableBody').innerHTML = props.map((p, i) => `
+        <tr>
+          <td style="color:var(--gray-500)">${i+1}</td>
+          <td style="font-size:.875rem;max-width:180px;font-weight:500">${p.job ? escHtml(p.job.title) : '-'}</td>
+          <td><strong>$${p.amount}</strong></td>
+          <td>${p.estimatedDays} gün</td>
+          <td><span class="${badgeForStatus(p.status)}">${propStatusLabels[p.status]||p.status}</span></td>
+          <td style="font-size:.78rem;color:var(--gray-500)">${formatDate(p.createdAt)}</td>
+          <td><button class="btn btn-sm btn-danger" onclick="adminDeleteProposal(${p.id})">🗑️ Sil</button></td>
+        </tr>`).join('');
+    }
+
+    function filterProposals() {
+      const status = document.getElementById('propStatusFilter').value;
+      const filtered = !status ? allProposals : allProposals.filter(p => p.status === status);
+      renderProposals(filtered);
+    }
+
+    async function adminDeleteProposal(id) {
+      const ok = await confirmDialog('Bu müraciəti silmək istədiyinizə əminsinizmi?');
+      if (!ok) return;
+      try {
+        await ProposalsAPI.adminDelete(id);
+        allProposals = allProposals.filter(p => p.id !== id);
+        renderProposals(allProposals);
+        renderStats();
+        showToast('Müraciət silindi ✅', 'success');
+      } catch (err) {
+        showToast(getErrorMessage(err), 'error');
+      }
+    }
+
+    async function doLogout() {
+      try { await AuthAPI.logout(); } catch {}
+      Auth.clear();
+      window.location.href = 'login.html';
+    }
+
+    function escHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    loadAll();
+  </script>
+</body>
+</html>

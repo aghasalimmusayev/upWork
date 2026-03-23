@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profilim — FreeLance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="container">
+    <div class="page-layout">
+      <aside class="sidebar">
+        <div id="sidebarContent"></div>
+        <div class="sidebar-divider"></div>
+        <nav>
+          <a href="dashboard.html" class="sidebar-link"><span class="icon">🏠</span>Dashboard</a>
+          <a href="jobs.html" class="sidebar-link"><span class="icon">💼</span>İşlər</a>
+          <a href="profile.html" class="sidebar-link active"><span class="icon">👤</span>Profilim</a>
+        </nav>
+      </aside>
+
+      <main>
+        <!-- Profile Header -->
+        <div class="profile-header mb-16">
+          <div class="profile-info">
+            <div class="profile-avatar" id="profileAvatar">?</div>
+            <div>
+              <div class="profile-name" id="profileName">Yüklənir...</div>
+              <div class="profile-role" id="profileRole"></div>
+              <div class="profile-meta" id="profileMeta"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this,'editTab')">✏️ Profili Düzəliş Et</button>
+          <button class="tab-btn" onclick="switchTab(this,'passTab')">🔒 Şifrə Dəyiş</button>
+          <button class="tab-btn" onclick="switchTab(this,'dangerTab')">⚠️ Hesabı Sil</button>
+        </div>
+
+        <!-- EDIT PROFILE TAB -->
+        <div class="tab-content active card" id="editTab">
+          <div class="card-header"><h3>Profil Məlumatları</h3></div>
+          <div class="card-body">
+            <div class="alert alert-danger" id="editErr"><span>❌</span><span id="editErrMsg"></span></div>
+            <div class="alert alert-success" id="editSuccess"><span>✅</span><span>Profiliniz yeniləndi!</span></div>
+            <form id="editForm" novalidate>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div class="form-group">
+                  <label class="form-label">Ad</label>
+                  <input class="form-control" type="text" id="editName" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Soyad</label>
+                  <input class="form-control" type="text" id="editSurname" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Telefon</label>
+                <input class="form-control" type="tel" id="editPhone" placeholder="+994 XX XXX XX XX" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input class="form-control" type="email" id="editEmail" disabled style="background:var(--gray-100);color:var(--gray-500)" />
+                <div style="font-size:.75rem;color:var(--gray-500);margin-top:4px">E-mail dəyişdirilə bilməz</div>
+              </div>
+              <button type="submit" class="btn btn-primary" id="saveProfileBtn">💾 Yadda Saxla</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- CHANGE PASSWORD TAB -->
+        <div class="tab-content card" id="passTab">
+          <div class="card-header"><h3>Şifrəni Dəyiş</h3></div>
+          <div class="card-body">
+            <div class="alert alert-danger" id="passErr"><span>❌</span><span id="passErrMsg"></span></div>
+            <div class="alert alert-success" id="passSuccess"><span>✅</span><span>Şifrəniz uğurla dəyişdirildi! Yenidən daxil olun.</span></div>
+            <form id="passForm" novalidate>
+              <div class="form-group">
+                <label class="form-label">Cari Şifrə *</label>
+                <input class="form-control" type="password" id="oldPassword" placeholder="Mövcud şifrəniz" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Yeni Şifrə *</label>
+                <input class="form-control" type="password" id="newPassword" placeholder="Ən az 8 simvol" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Yeni Şifrəni Təsdiqlə *</label>
+                <input class="form-control" type="password" id="confirmNewPass" placeholder="Yeni şifrəni yenidən daxil edin" />
+              </div>
+              <div class="alert alert-info show" style="font-size:.82rem">
+                <span>ℹ️</span><span>Şifrəni dəyişdirdikdən sonra bütün aktiv sessiyalarınız ləğv ediləcək</span>
+              </div>
+              <button type="submit" class="btn btn-primary mt-16" id="savePassBtn">🔒 Şifrəni Dəyiş</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- DANGER ZONE TAB -->
+        <div class="tab-content card" id="dangerTab" style="border-color:var(--danger)">
+          <div class="card-header" style="border-bottom-color:var(--danger)">
+            <h3 style="color:var(--danger)">⚠️ Təhlükəli Zona</h3>
+          </div>
+          <div class="card-body">
+            <div class="mb-16">
+              <h4>Bütün Cihazlardan Çıxış</h4>
+              <p class="text-muted mt-8">Bütün aktiv sessiyalarınızı ləğv edin.</p>
+              <button class="btn btn-warning mt-16" onclick="logoutAll()">🚪 Bütün Cihazlardan Çıx</button>
+            </div>
+            <div class="divider"></div>
+            <div>
+              <h4>Hesabı Sil</h4>
+              <p class="text-muted mt-8">Bu əməliyyat geri alına bilməz. Bütün məlumatlarınız silinəcək.</p>
+              <button class="btn btn-danger mt-16" onclick="deleteAccount()">🗑️ Hesabımı Sil</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script>
+    if (!requireAuth()) throw new Error('Not auth');
+    renderNavbar('profile');
+
+    let currentUser = null;
+
+    async function loadProfile() {
+      try {
+        currentUser = await AuthAPI.profile();
+        // Update sidebar
+        const u = currentUser;
+        document.getElementById('sidebarContent').innerHTML = `
+          <div class="d-flex align-center gap-12 mb-8">
+            <div class="avatar">${getInitials(u.name, u.surname)}</div>
+            <div><div style="font-weight:700;font-size:.9rem">${escHtml(u.name)} ${escHtml(u.surname || '')}</div><span class="${badgeForStatus(u.role)}">${u.role}</span></div>
+          </div>`;
+
+        // Update header
+        document.getElementById('profileAvatar').textContent = getInitials(u.name, u.surname);
+        document.getElementById('profileName').textContent = `${u.name || ''} ${u.surname || ''}`.trim();
+        document.getElementById('profileRole').innerHTML = `<span class="${badgeForStatus(u.role)}">${u.role}</span>`;
+        document.getElementById('profileMeta').innerHTML = `
+          ${u.email ? `<span>📧 ${escHtml(u.email)}</span>` : ''}
+          ${u.phone ? `<span>📞 ${escHtml(u.phone)}</span>` : ''}
+        `;
+
+        // Fill edit form
+        document.getElementById('editName').value = u.name || '';
+        document.getElementById('editSurname').value = u.surname || '';
+        document.getElementById('editPhone').value = u.phone || '';
+        document.getElementById('editEmail').value = u.email || '';
+      } catch (err) {
+        showToast('Profil yüklənə bilmədi', 'error');
+      }
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('editErr').classList.remove('show');
+      document.getElementById('editSuccess').classList.remove('show');
+
+      const btn = document.getElementById('saveProfileBtn');
+      btn.classList.add('btn-loading'); btn.disabled = true;
+
+      try {
+        const data = {};
+        const name = document.getElementById('editName').value.trim();
+        const surname = document.getElementById('editSurname').value.trim();
+        const phone = document.getElementById('editPhone').value.trim();
+        if (name) data.name = name;
+        if (surname) data.surname = surname;
+        if (phone) data.phone = phone;
+
+        const updated = await UsersAPI.update(currentUser.id, data);
+        Auth.setSession(updated, Auth.getToken());
+        currentUser = updated;
+        document.getElementById('editSuccess').classList.add('show');
+        showToast('Profil yeniləndi ✅', 'success');
+        // Refresh header
+        document.getElementById('profileName').textContent = `${updated.name || ''} ${updated.surname || ''}`.trim();
+      } catch (err) {
+        document.getElementById('editErrMsg').textContent = getErrorMessage(err);
+        document.getElementById('editErr').classList.add('show');
+      } finally {
+        btn.classList.remove('btn-loading'); btn.disabled = false;
+      }
+    });
+
+    document.getElementById('passForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      document.getElementById('passErr').classList.remove('show');
+      document.getElementById('passSuccess').classList.remove('show');
+
+      const oldPassword = document.getElementById('oldPassword').value;
+      const password = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmNewPass').value;
+
+      if (password.length < 8) {
+        document.getElementById('passErrMsg').textContent = 'Yeni şifrə minimum 8 simvol olmalıdır';
+        document.getElementById('passErr').classList.add('show');
+        return;
+      }
+      if (password !== confirm) {
+        document.getElementById('passErrMsg').textContent = 'Şifrələr uyğun gəlmir';
+        document.getElementById('passErr').classList.add('show');
+        return;
+      }
+
+      const btn = document.getElementById('savePassBtn');
+      btn.classList.add('btn-loading'); btn.disabled = true;
+
+      try {
+        await UsersAPI.changePassword(currentUser.id, { oldPassword, password });
+        document.getElementById('passSuccess').classList.add('show');
+        document.getElementById('passForm').reset();
+        setTimeout(() => {
+          Auth.clear();
+          window.location.href = '/login.html';
+        }, 2000);
+      } catch (err) {
+        document.getElementById('passErrMsg').textContent = getErrorMessage(err);
+        document.getElementById('passErr').classList.add('show');
+      } finally {
+        btn.classList.remove('btn-loading'); btn.disabled = false;
+      }
+    });
+
+    async function logoutAll() {
+      const ok = await confirmDialog('Bütün cihazlardan çıxış etmək istədiyinizə əminsinizmi?');
+      if (!ok) return;
+      try {
+        await AuthAPI.logoutAll();
+        Auth.clear();
+        showToast('Bütün cihazlardan çıxış edildi', 'info');
+        setTimeout(() => window.location.href = 'login.html', 800);
+      } catch (err) {
+        showToast(getErrorMessage(err), 'error');
+      }
+    }
+
+    async function deleteAccount() {
+      const ok = await confirmDialog('Hesabınızı silmək istədiyinizə əminsinizmi? Bu əməliyyat geri alına bilməz!');
+      if (!ok) return;
+      try {
+        await UsersAPI.delete(currentUser.id);
+        Auth.clear();
+        showToast('Hesabınız silindi', 'info');
+        setTimeout(() => window.location.href = 'index.html', 800);
+      } catch (err) {
+        showToast(getErrorMessage(err), 'error');
+      }
+    }
+
+    function switchTab(btn, tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    function escHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

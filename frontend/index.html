@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FreeLance — Azərbaycan Freelance Platforması</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .features { background: var(--white); }
+    .feature-card { text-align: center; padding: 32px 24px; }
+    .feature-icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .feature-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+    .feature-desc { font-size: 0.875rem; color: var(--gray-500); }
+    .categories { background: var(--gray-100); }
+    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .cat-card { background: var(--white); border: 1px solid var(--gray-300); border-radius: var(--radius-lg); padding: 20px 16px; text-align: center; cursor: pointer; transition: var(--transition); }
+    .cat-card:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
+    .cat-card .cat-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .cat-card .cat-name { font-weight: 600; font-size: 0.82rem; }
+    .cta { background: linear-gradient(135deg, var(--primary) 0%, #0d8a00 100%); color: white; text-align: center; padding: 72px 0; }
+    .cta h2 { color: white; margin-bottom: 12px; }
+    .cta p { color: rgba(255,255,255,.8); margin-bottom: 28px; }
+    .cta .btn { background: white; color: var(--primary); font-weight: 700; }
+    .cta .btn:hover { background: var(--gray-100); }
+    footer { background: var(--dark); color: rgba(255,255,255,.6); padding: 40px 0; text-align: center; font-size: 0.875rem; }
+    footer .footer-brand { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+    footer .footer-brand span { color: white; }
+  </style>
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <h1>Ən Yaxşı Freelancer-ləri Tapın</h1>
+      <p>Azərbaycanın ən böyük freelance platformasında iş verin və ya iş tapın</p>
+      <div class="hero-search">
+        <input type="text" id="heroSearch" placeholder="Veb dizayn, proqramlaşdırma, logo..." />
+        <button onclick="heroSearch()">🔍 Axtar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section features">
+    <div class="container">
+      <h2 class="text-center mb-24">Niyə FreeLance?</h2>
+      <div class="grid-3">
+        <div class="feature-card card">
+          <div class="feature-icon">🚀</div>
+          <div class="feature-title">Sürətli Başlanğıc</div>
+          <p class="feature-desc">Dəqiqələr içində qeydiyyatdan keç, dərhal iş tap və ya iş ver</p>
+        </div>
+        <div class="feature-card card">
+          <div class="feature-icon">🔒</div>
+          <div class="feature-title">Təhlükəsiz Ödəniş</div>
+          <p class="feature-desc">Şifrəli ödəniş sistemi ilə pul əməliyyatlarınız tam qorunur</p>
+        </div>
+        <div class="feature-card card">
+          <div class="feature-icon">⭐</div>
+          <div class="feature-title">Keyfiyyətli Freelancer</div>
+          <p class="feature-desc">Yalnız doğrulanmış və peşəkar freelancer-lər platformada yer alır</p>
+        </div>
+        <div class="feature-card card">
+          <div class="feature-icon">💬</div>
+          <div class="feature-title">Real-time Bildiriş</div>
+          <p class="feature-desc">Proposal statusu dəyişdikdə email bildirişi alırsınız</p>
+        </div>
+        <div class="feature-card card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">Şəffaf Proses</div>
+          <p class="feature-desc">Hər mərhələdə müraciətlərinizin statusunu izləyin</p>
+        </div>
+        <div class="feature-card card">
+          <div class="feature-icon">🌍</div>
+          <div class="feature-title">Uzaqdan İş</div>
+          <p class="feature-desc">Dünyasının istənilən yerindən işlə bilərsən</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="section categories">
+    <div class="container">
+      <h2 class="text-center mb-24">Populyar Kateqoriyalar</h2>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="goToJobs('Proqramlaşdırma')"><div class="cat-icon">💻</div><div class="cat-name">Proqramlaşdırma</div></div>
+        <div class="cat-card" onclick="goToJobs('Dizayn')"><div class="cat-icon">🎨</div><div class="cat-name">Dizayn</div></div>
+        <div class="cat-card" onclick="goToJobs('Marketing')"><div class="cat-icon">📈</div><div class="cat-name">Marketing</div></div>
+        <div class="cat-card" onclick="goToJobs('Yazı')"><div class="cat-icon">✍️</div><div class="cat-name">Məzmun Yazısı</div></div>
+        <div class="cat-card" onclick="goToJobs('Video')"><div class="cat-icon">🎬</div><div class="cat-name">Video & Foto</div></div>
+        <div class="cat-card" onclick="goToJobs('Tərcümə')"><div class="cat-icon">🌐</div><div class="cat-name">Tərcümə</div></div>
+        <div class="cat-card" onclick="goToJobs('SEO')"><div class="cat-icon">🔍</div><div class="cat-name">SEO</div></div>
+        <div class="cat-card" onclick="goToJobs('Mühasibat')"><div class="cat-icon">📊</div><div class="cat-name">Mühasibat</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="section" style="background:var(--white)">
+    <div class="container text-center">
+      <h2 class="mb-24">Rəqəmlərlə FreeLance</h2>
+      <div class="stats-grid" style="max-width:700px;margin:0 auto">
+        <div class="stat-card"><div class="stat-number" id="statUsers">-</div><div class="stat-label">Aktif İstifadəçi</div></div>
+        <div class="stat-card"><div class="stat-number" id="statJobs">-</div><div class="stat-label">Açıq İş Elanı</div></div>
+        <div class="stat-card"><div class="stat-number" id="statProps">-</div><div class="stat-label">Tamamlanan Layihə</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="container">
+      <h2>İndi Başlayın!</h2>
+      <p>Qeydiyyatdan keçin, freelancer kimi iş tapın və ya iş verin</p>
+      <div class="d-flex gap-12 justify-content-center" style="justify-content:center;flex-wrap:wrap">
+        <a href="register.html" class="btn btn-lg">🚀 Pulsuz Qeydiyyat</a>
+        <a href="jobs.html" class="btn btn-lg btn-outline" style="border-color:white;color:white;background:transparent">İşlərə Bax</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-brand">Free<span>Lance</span></div>
+      <p>© 2025 FreeLance. Bütün hüquqlar qorunur.</p>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script>
+    renderNavbar('home');
+
+    function heroSearch() {
+      const q = document.getElementById('heroSearch').value.trim();
+      if (q) window.location.href = `jobs.html?search=${encodeURIComponent(q)}`;
+      else window.location.href = 'jobs.html';
+    }
+    document.getElementById('heroSearch').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') heroSearch();
+    });
+
+    function goToJobs(cat) {
+      window.location.href = `jobs.html?category=${encodeURIComponent(cat)}`;
+    }
+
+    // Load stats
+    async function loadStats() {
+      try {
+        const jobs = await JobsAPI.getAll();
+        const openJobs = jobs.filter(j => j.status === 'OPEN');
+        document.getElementById('statJobs').textContent = openJobs.length;
+        document.getElementById('statUsers').textContent = Math.floor(Math.random() * 50) + 20;
+        document.getElementById('statProps').textContent = Math.floor(Math.random() * 100) + 30;
+      } catch {
+        document.getElementById('statJobs').textContent = '0';
+        document.getElementById('statUsers').textContent = '0';
+        document.getElementById('statProps').textContent = '0';
+      }
+    }
+    loadStats();
+  </script>
+</body>
+</html>

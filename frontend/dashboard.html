@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — FreeLance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+  <div id="navbar"></div>
+
+  <div class="container">
+    <div class="page-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--gray-300)">
+          <div id="sidebarUser" class="d-flex align-center gap-12">
+            <div class="avatar" id="sideAvatar">?</div>
+            <div>
+              <div style="font-weight:700;font-size:.9rem" id="sideUserName">...</div>
+              <div id="sideUserRole"></div>
+            </div>
+          </div>
+        </div>
+        <nav class="sidebar-nav" id="sidebarNav"></nav>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main>
+        <!-- STATS -->
+        <div class="stats-grid" id="statsGrid" style="display:none">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs" id="mainTabs" style="display:none">
+          <!-- Filled by JS -->
+        </div>
+
+        <!-- TAB CONTENTS -->
+        <div id="tabContents"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- CREATE/EDIT JOB MODAL -->
+  <div class="modal-overlay" id="jobModal">
+    <div class="modal" style="max-width:560px">
+      <div class="modal-header">
+        <h3 id="jobModalTitle">Yeni İş Yarat</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" id="jobErr"><span>❌</span><span id="jobErrMsg"></span></div>
+        <form id="jobForm" novalidate>
+          <input type="hidden" id="editJobId" />
+          <div class="form-group">
+            <label class="form-label">İş Başlığı *</label>
+            <input class="form-control" type="text" id="jobTitle" placeholder="Məs: React.js Frontend Developer" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Təsvir</label>
+            <textarea class="form-control" id="jobDesc" rows="4" placeholder="İşin ətraflı təsviri..."></textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label class="form-label">Ödəniş Tipi *</label>
+              <select class="form-control" id="jobPayment">
+                <option value="FIXED">Sabit Qiymət</option>
+                <option value="HOURLY">Saatlıq</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Qiymət ($) *</label>
+              <input class="form-control" type="number" id="jobPrice" placeholder="0" min="1" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kateqoriya *</label>
+            <input class="form-control" type="text" id="jobCategory" placeholder="Məs: Proqramlaşdırma" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bacarıqlar (vergüllə ayırın) *</label>
+            <input class="form-control" type="text" id="jobSkills" placeholder="Məs: React, TypeScript, Node.js" />
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('jobModal')">Ləğv et</button>
+        <button class="btn btn-primary" id="saveJobBtn" onclick="saveJob()">💾 Yadda Saxla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANGE STATUS MODAL -->
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal" style="max-width:360px">
+      <div class="modal-header"><h3>İş Statusunu Dəyiş</h3><button class="modal-close">✕</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="statusJobId" />
+        <div class="form-group">
+          <label class="form-label">Yeni Status</label>
+          <select class="form-control" id="newJobStatus">
+            <option value="OPEN">✅ Açıq</option>
+            <option value="CLOSED">🔒 Bağlı</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('statusModal')">Ləğv et</button>
+        <button class="btn btn-primary" onclick="saveJobStatus()">Yadda Saxla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPDATE PROPOSAL MODAL -->
+  <div class="modal-overlay" id="editPropModal">
+    <div class="modal">
+      <div class="modal-header"><h3>Müraciəti Yenilə</h3><button class="modal-close">✕</button></div>
+      <div class="modal-body">
+        <div class="alert alert-danger" id="editPropErr"><span>❌</span><span id="editPropErrMsg"></span></div>
+        <form id="editPropForm">
+          <input type="hidden" id="editPropId" />
+          <div class="form-group">
+            <label class="form-label">Müraciət Məktubu</label>
+            <textarea class="form-control" id="editPropCover" rows="4"></textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label class="form-label">Məbləğ ($)</label>
+              <input class="form-control" type="number" id="editPropAmount" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Müddət (gün)</label>
+              <input class="form-control" type="number" id="editPropDays" min="1" />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('editPropModal')">Ləğv et</button>
+        <button class="btn btn-primary" id="saveEditPropBtn" onclick="saveEditProposal()">💾 Yadda Saxla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROPOSAL STATUS MODAL (for CLIENT) -->
+  <div class="modal-overlay" id="propStatusModal">
+    <div class="modal" style="max-width:380px">
+      <div class="modal-header"><h3>Müraciət Statusu</h3><button class="modal-close">✕</button></div>
+      <div class="modal-body">
+        <input type="hidden" id="propStatusId" />
+        <div class="form-group">
+          <label class="form-label">Status Seçin</label>
+          <select class="form-control" id="newPropStatus">
+            <option value="ACCEPTED">✅ Qəbul Et</option>
+            <option value="REJECTED">❌ Rədd Et</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('propStatusModal')">Ləğv et</button>
+        <button class="btn btn-primary" onclick="savePropStatus()">Yadda Saxla</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
