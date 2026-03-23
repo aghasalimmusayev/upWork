@@ -36,16 +36,18 @@ export class UsersService {
         return await this.findUser(user.id)
     }
 
-    async updatePassword(id: number, password: string, currentUserId: number) {
+    async updatePassword(id: number, oldPassword: string, password: string, currentUserId: number) {
         if (id !== currentUserId) throw new ForbiddenException('You can only change your own password')
         const user = await this.findUser(id)
         if (!user) throw new NotFoundException('User not found')
+        const checkOldPassword = await bcrypt.compare(oldPassword, user.password)
+        if (!checkOldPassword) throw new ForbiddenException('Your current password is wrong')
+        const checkNewPassword = await bcrypt.compare(password, user.password)
+        if (checkNewPassword) throw new ForbiddenException('You can not use the same password')
         await this.tokenRepo.update(
             { user: { id: user.id }, revoke: false },
             { revoke: true }
         )
-        const checkPassword = await bcrypt.compare(password, user.password)
-        if (checkPassword) throw new ForbiddenException('You can not write the same password')
         const hashed = await bcrypt.hash(password, 10)
         const result = await this.repo.update(user.id, { password: hashed })
         if (result.affected === 0) throw new NotFoundException('User not found')

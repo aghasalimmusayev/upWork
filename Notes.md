@@ -39,4 +39,3 @@ https://www.upwork.com/
 
 <!--Todo * DB-de token-i hashlayib saxlamaq lazimdi, bunu edende service-de deyisiklikler olacaq -->
 
-

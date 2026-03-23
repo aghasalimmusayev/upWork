@@ -1,96 +1,118 @@
-# UpWork Clone API
+# 🚀 UpWork Clone API
 
-A backend API for a freelance marketplace platform inspired by Upwork.  
-This project is built with **NestJS**, **TypeORM**, and **SQLite**, and provides a secure authentication system with **JWT access tokens** and **refresh tokens** stored in the database.
+<div align="center">
 
-The system supports two types of users:
+![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![TypeORM](https://img.shields.io/badge/TypeORM-FE0803?style=for-the-badge&logo=typeorm&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)
 
-- **CLIENT** – users who post jobs
-- **FREELANCER** – users who apply for jobs
+**NestJS, TypeORM və SQLite ilə qurulmuş freelance marketplace backend API-si**
 
-This project is designed with clean architecture principles and can easily scale into a production-ready freelance marketplace.
-
----
-
-# Tech Stack
-* Backend Framework
-  - NestJS
-* Language
-  - TypeScript
-* Database
-  - SQLite
-* ORM
-  - TypeORM
-* Authentication
-  - JWT (Access Token + Refresh Token)
-* Security
-  - bcrypt password hashing
-  - HTTP throttling (rate limiting)
-* Validation
-  - class-validator
-  - class-transformer
-* API Documentation
-  - Swagger
-* Task Scheduling
-  - NestJS Schedule
----
-
-# Features
-### Authentication System
-* Secure authentication flow implemented using:
-  - Access Tokens (short-lived)
-  - Refresh Tokens (long-lived)
-  - Token persistence in database
-  - Token revocation support
-
-* Authentication features include:
-  - User registration
-  - Login
-  - Token refresh
-  - Logout
-  - LogoutAll
-
----
-### Role Based Users
-* Users have a role field:
-  - CLIENT
-  - FREELANCER
-
-This allows implementing role-based permissions in the future.
-Example use cases:
-
-* CLIENT
-  - create jobs
-  - hire freelancers
-* FREELANCER
-  - browse jobs
-  - send proposals
----
-
-### Secure Password Handling
-* Passwords are never stored in plain text.
-**Implementation:**
-  - Passwords hashed using **bcrypt**
-  - Minimum password length validation
-  - Secure comparison during login
-
----
-### Token Management
-* Refresh tokens are stored in the database.
-**Token entity includes:**
-  - tokenHash
-  - expiration date
-  - revocation flag
-  - relation to user
-
-* This allows:
-  - logout from specific sessions
-  - token invalidation
-  - better security
+</div>
 
 ---
 
-# Project Structure
+## 📋 Mündəricat
+
+- [Haqqında](#-haqqında)
+- [Tech Stack](#-tech-stack)
+- [Xüsusiyyətlər](#-xüsusiyyətlər)
+- [Layihə Strukturu](#-layihə-strukturu)
+- [Entities](#-entities)
+- [Authentication Flow](#-authentication-flow)
+- [API Endpointlər](#-api-endpointlər)
+- [Environment Variables](#-environment-variables)
+- [Quraşdırma](#-quraşdırma)
+- [İşə Salma](#-i̇şə-salma)
+- [Swagger Dokumentasiyası](#-swagger-dokumentasiyası)
+- [Təhlükəsizlik](#-təhlükəsizlik)
+- [Modul Strukturu](#-modul-strukturu)
+
+---
+
+## 📖 Haqqında
+
+Bu layihə **Upwork**-dən ilhamlanan bir freelance marketplace platformasının backend API-sidir. Sistem iki növ istifadəçini dəstəkləyir:
+
+| Rol | Təsvir |
+|-----|--------|
+| 🏢 **CLIENT** | İş elanı yerləşdirən istifadəçilər |
+| 💼 **FREELANCER** | İşlərə müraciət edən istifadəçilər |
+| 🛡️ **ADMIN** | Sistem idarəçisi |
+
+---
+
+## 🛠️ Tech Stack
+
+| Kateqoriya | Texnologiya |
+|-----------|-------------|
+| Backend Framework | **NestJS v11** |
+| Proqramlaşdırma Dili | **TypeScript** |
+| Verilənlər Bazası | **SQLite** |
+| ORM | **TypeORM** |
+| Autentifikasiya | **JWT** (Access + Refresh Token) |
+| Şifrələmə | **bcrypt** |
+| Validasiya | **class-validator** + **class-transformer** |
+| API Dokumentasiyası | **Swagger (OpenAPI)** |
+| E-mail | **@nestjs-modules/mailer** + **Nodemailer** (Handlebars) |
+| Rate Limiting | **@nestjs/throttler** |
+| Task Scheduling | **@nestjs/schedule** |
+
+---
+
+## ✨ Xüsusiyyətlər
+
+### 🔐 Authentication Sistemi
+
+- **Access Token** (qısa müddətli) — qorunan route-lar üçün
+- **Refresh Token** (uzun müddətli) — yeni access token almaq üçün
+- Refresh token-lar **database-də saxlanılır** və **HTTP-only cookie**-də göndərilir
+- Token **revoke** mexanizmi — istənilən sessiyanı ləğv etmək mümkündür
+- **Logout** (cari sessiya) və **LogoutAll** (bütün cihazlar) dəstəyi
+- Şifrə dəyişdirildikdə bütün aktiv sessiyalar avtomatik ləğv edilir
+
+### 👤 İstifadəçi İdarəetməsi
+
+- Qeydiyyat zamanı **xoş gəldin e-maili** göndərilir
+- Rol əsaslı giriş kontrolu (**RBAC**)
+- Öz profilini yeniləmə, şifrə dəyişdirmə, hesabı silmə
+- Admin bütün istifadəçiləri görə bilər
+
+### 💼 Jobs Modulu
+
+- CLIENT-lər iş elanı yarada, yeniləyə, silə bilər
+- İş statusunu idarə etmə: `OPEN` / `CLOSED`
+- Bütün açıq işləri görüntüləmək mümkündür
+- Ödəniş tipi dəstəyi: `FIXED` / `HOURLY`
+- Admin istənilən işi silə bilər
+
+### 📄 Proposals Modulu
+
+- FREELANCER-lər işlərə müraciət (proposal) göndərə bilər
+- Proposal statusları: `PENDING` → `ACCEPTED` / `REJECTED` / `WITHDRAWN`
+- CLIENT yeni proposal aldıqda **e-mail bildirişi** gəlir
+- FREELANCER proposal statusu dəyişdikdə **e-mail bildirişi** alır
+- FREELANCER yalnız `WITHDRAWN` edə bilər; CLIENT `ACCEPTED` / `REJECTED` edə bilər
+
+### 🧹 Cleanup (Avtomatik Təmizlənmə)
+
+- Hər həftə avtomatik işləyir (`@Cron`)
+- Revoke edilmiş və müddəti bitmiş token-lar verilənlər bazasından silinir
+
+### 📧 Mail Sistemi
+
+| Hadisə | Şablon |
+|--------|--------|
+| Qeydiyyat | `welcome.hbs` |
+| Yeni proposal gəldikdə | `proposal.hbs` |
+| Proposal statusu dəyişdikdə | `proposalStatus.hbs` |
+
+---
+
+## 📁 Layihə Strukturu
 
 ```
 ├── 📁 src
@@ -127,9 +149,11 @@ Example use cases:
 │   │   ├── 📄 cleanup.service.spec.ts
 │   │   └── 📄 cleanup.service.ts
 │   ├── 📁 decorators
-│   │   └── 📄 currentUser.decorator.ts
+│   │   ├── 📄 currentUser.decorator.ts
+│   │   └── 📄 roles.decorator.ts
 │   ├── 📁 guards
-│   │   └── 📄 auth.guard.ts
+│   │   ├── 📄 auth.guard.ts
+│   │   └── 📄 role.guard.ts
 │   ├── 📁 interceptors
 │   │   └── 📄 serialize.interceptor.ts
 │   ├── 📁 jobs
@@ -138,6 +162,14 @@ Example use cases:
 │   │   ├── 📄 jobs.module.ts
 │   │   ├── 📄 jobs.service.spec.ts
 │   │   └── 📄 jobs.service.ts
+│   ├── 📁 mail
+│   │   ├── 📁 templates
+│   │   │   ├── 📄 proposal.hbs
+│   │   │   ├── 📄 proposalStatus.hbs
+│   │   │   └── 📄 welcome.hbs
+│   │   ├── 📄 mail.module.ts
+│   │   ├── 📄 mail.service.spec.ts
+│   │   └── 📄 mail.service.ts
 │   ├── 📁 proposals
 │   │   ├── 📄 proposals.controller.spec.ts
 │   │   ├── 📄 proposals.controller.ts
@@ -154,7 +186,8 @@ Example use cases:
 │   ├── 📄 app.controller.ts
 │   ├── 📄 app.module.ts
 │   ├── 📄 app.service.ts
-│   └── 📄 main.ts
+│   ├── 📄 main.ts
+│   └── 📄 seed.ts      # Admin.create
 ├── 📁 test
 │   ├── 📄 app.e2e-spec.ts
 │   └── ⚙️ jest-e2e.json
@@ -170,256 +203,280 @@ Example use cases:
 └── ⚙️ tsconfig.json
 ```
 
+---
+
+## 🗃️ Entities
+
+### 👤 User Entity
+
+| Sahə | Tip | Təsvir |
+|------|-----|--------|
+| `id` | number | Unikal identifikator |
+| `email` | string | E-mail ünvanı |
+| `password` | string | Hashed şifrə (gizli) |
+| `role` | enum | `CLIENT` / `FREELANCER` / `ADMIN` |
+| `name` | string | Ad |
+| `surname` | string | Soyad |
+| `phone` | string | Telefon nömrəsi |
+| `createdAt` | Date | Yaradılma tarixi |
+| `updatedAt` | Date | Yenilənmə tarixi |
+
+### 💼 JobEntity
+
+| Sahə | Tip | Təsvir |
+|------|-----|--------|
+| `id` | number | Unikal identifikator |
+| `title` | string | İş başlığı |
+| `description` | string | Ətraflı təsvir |
+| `paymentType` | enum | `FIXED` / `HOURLY` |
+| `price` | number | Büdcə |
+| `category` | string | Kateqoriya |
+| `skills` | string[] | Tələb olunan bacarıqlar |
+| `status` | enum | `OPEN` / `CLOSED` |
+| `user` | User | İşi yaradan CLIENT (ManyToOne) |
+| `proposals` | Proposal[] | Gələn müraciətlər (OneToMany) |
+
+### 📄 Proposal Entity
+
+| Sahə | Tip | Təsvir |
+|------|-----|--------|
+| `id` | number | Unikal identifikator |
+| `coverLetter` | string | Müraciət məktubu |
+| `amount` | number | Təklif edilən məbləğ |
+| `estimatedDays` | number | Təxmini iş müddəti (gün) |
+| `status` | enum | `PENDING` / `ACCEPTED` / `REJECTED` / `WITHDRAWN` |
+| `user` | User | Müraciət edən FREELANCER (ManyToOne) |
+| `job` | JobEntity | Müraciət edilən iş (ManyToOne) |
+
+### 🔑 TokenEntity
+
+| Sahə | Tip | Təsvir |
+|------|-----|--------|
+| `id` | number | Unikal identifikator |
+| `tokenHash` | string | Refresh token dəyəri |
+| `expiresAt` | Date | Bitmə tarixi |
+| `revoke` | boolean | Ləğv statusu |
+| `user` | User | Tokeni olan istifadəçi |
+
+### 📦 CommonEntity (Baza entity)
+
+Bütün entity-lər bu entity-dən extends edir:
+- `id` — PrimaryGeneratedColumn
+- `createdAt` — Avtomatik yaradılma tarixi
+- `updatedAt` — Yenilənmə tarixi
 
 ---
 
-# Entities
+## 🔄 Authentication Flow
 
-## User
-* Represents a system user.
-* Fields:
-  - id
-  - createdAt
-  - updatedAt
-  - email
-  - password
-  - role
-  - name
-  - surname
-  - tokens relation
-  - jobs ralation
-  - proposals relation
----
+```
+İstifadəçi → POST /auth/login
+                    │
+                    ▼
+           Email + Şifrə yoxlanır
+                    │
+                    ▼
+         Access Token (15 dəq)  ← JSON response-da qaytarılır
+         Refresh Token (7 gün)  ← HTTP-only cookie-də saxlanılır
+                                   + Database-ə yazılır
+```
 
-## JobEntity
-* Represents created jobs.
-  - id
-  - createdAt
-  - updatedAt
-  - title
-  - description
-  - paymentType
-  - price
-  - category
-  - skills
-  - status
-  - ManyToOne relation with user
-  - OneToMany relation with proposal
-
-## ProposalEntity
-* Represents created proposal to jobs.
-  - id
-  - createdAt
-  - updatedAt
-  - coverLetter
-  - amount
-  - status
-  - estimatedDays
-  - ManyToOne relation with User
-  - ManyToOne relation with Job
-
-## TokenEntity
-* Represents stored refresh tokens.
-  - id
-  - tokenHash
-  - createdAt
-  - expiresAt
-  - revoke
-  - user relation
+**Token yenilənmə:**
+```
+Cookie-dəki Refresh Token → POST /auth/refresh
+                                        │
+                                        ▼
+                              Köhnə token silinir
+                              Yeni token cütü yaradılır
+                                        │
+                                        ▼
+                              Yeni Access Token qaytarılır
+                              Yeni Refresh Token cookie-yə yazılır
+```
 
 ---
 
-## CommonEntity
-* Base entity used for shared fields.
-  - id
-  - createdAt
-  - updatedAt
+## 📡 API Endpointlər
+
+### 🔐 Auth (`/auth`)
+
+| Method | Endpoint | Təsvir | Rate Limit |
+|--------|----------|--------|-----------|
+| `POST` | `/auth/register` | Qeydiyyat | 3/dəq |
+| `POST` | `/auth/login` | Giriş | 5/dəq |
+| `POST` | `/auth/refresh` | Token yenilənməsi | 5/dəq |
+| `POST` | `/auth/logout` | Çıxış (cari sessiya) | — |
+| `POST` | `/auth/logoutall` | Bütün cihazlardan çıxış 🔒 | — |
+| `GET` | `/auth/profile` | Cari istifadəçi məlumatı 🔒 | — |
+
+### 👤 Users (`/users`) 🔒
+
+| Method | Endpoint | Təsvir | İcazə |
+|--------|----------|--------|-------|
+| `GET` | `/users/all` | Bütün istifadəçilər | ADMIN |
+| `PATCH` | `/users/:id` | Profil yenilənməsi | Özü |
+| `PATCH` | `/users/password/:id` | Şifrə dəyişdirmə | Özü |
+| `DELETE` | `/users/:id` | Hesabı silmə | Özü |
+
+### 💼 Jobs (`/jobs`) 🔒
+
+| Method | Endpoint | Təsvir | İcazə |
+|--------|----------|--------|-------|
+| `POST` | `/jobs` | Yeni iş yaratmaq | CLIENT |
+| `GET` | `/jobs` | Bütün işlər | Hər kəs |
+| `GET` | `/jobs/:id` | Konkret iş | Sahibi |
+| `PATCH` | `/jobs/:id` | İşi yeniləmək | CLIENT (sahibi) |
+| `PATCH` | `/jobs/status/:id` | İş statusunu dəyişmək | CLIENT (sahibi) |
+| `DELETE` | `/jobs/:id` | İşi silmək | CLIENT (sahibi) |
+| `DELETE` | `/jobs/admin/:id` | İşi silmək (admin) | ADMIN |
+
+### 📄 Proposals (`/proposals`) 🔒
+
+| Method | Endpoint | Təsvir | İcazə |
+|--------|----------|--------|-------|
+| `POST` | `/proposals/jobs/:jobId` | Müraciət göndərmək | FREELANCER |
+| `GET` | `/proposals` | Öz müraciətlər | Öz roluna görə |
+| `GET` | `/proposals/:id` | Konkret müraciət | Sahibi |
+| `PATCH` | `/proposals/:id` | Müraciəti yeniləmək | FREELANCER |
+| `PATCH` | `/proposals/status/:id` | Status dəyişmək | CLIENT / FREELANCER |
+| `DELETE` | `/proposals/:id` | Müraciəti silmək | FREELANCER |
+| `DELETE` | `/proposals/admin/:id` | Admin tərəfindən silmək | ADMIN |
+
+> 🔒 — JWT token tələb olunur (`Authorization: Bearer <token>`)
 
 ---
 
-# Authentication Flow
+## ⚙️ Environment Variables
 
-**Login process:**
-1. User sends credentials
-2. Server validates email and password
-3. Server generates:
-  - Access Token
-  - Refresh Token
-4. Access token is returned to client
-5. Refresh token is stored in database and res.cookies
+`.env` faylı yaradın:
 
-**Access Token:**
-  - short lifetime
-  - used for protected routes
-**Refresh Token:**
-  - longer lifetime
-  - used to generate new access tokens
+```env
+# JWT
+JWT_ACCESS_SECRET=your_access_secret_key
+JWT_REFRESH_SECRET=your_refresh_secret_key
+JWT_ACCESS_TIME=15m
+JWT_REFRESH_TIME=7d
+
+# Server
+PORT=3014
+NODE_ENV=development
+
+# Mail (Gmail üçün)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=your_email@gmail.com
+MAIL_PASS=your_app_password
+MAIL_FROM=your_email@gmail.com
+```
+
+> ⚠️ Gmail üçün [App Password](https://myaccount.google.com/apppasswords) yaradın (2FA aktiv olmalıdır)
 
 ---
 
-# Security Considerations
+## 📦 Quraşdırma
 
-* This project implements several security practices:
-  - Password hashing with bcrypt
-  - Refresh token storage in database and cookie(http only)
-  - Token revocation capability
-  - Request validation using DTOs
-  - Rate limiting with NestJS throttler
+**1. Repo-nu klonlayın:**
+```bash
+git clone https://github.com/aghasalimmusayev/upWork.git
+cd upWork
+```
+
+**2. Asılılıqları quraşdırın:**
+```bash
+npm install
+```
+
+**3. `.env` faylı yaradın** (yuxarıdakı nümunəyə baxın)
+
+**4. Admin melumatlarini seed.ts faylinda yazib seed skriptini çalışdırın (isteğe bağlı):**
+```bash
+npm run seed
+```
 
 ---
 
-# Jobs Module
-The Jobs module allows clients to publish work opportunities and freelancers to browse available projects.
-A job represents a project posted by a client that freelancers can apply to.
-* Typical job information includes:
-```
-| Field          | Description                              |
-| -------------- | ---------------------------------------- |
-| id             | Unique identifier                        |
-| title          | Job title                                |
-| description    | Detailed job description                 |
-| paymentType    | Type of payment (FIXED or HOURLY)        |
-| price / budget | Budget allocated for the job             |
-| category       | Job category                             |
-| skills         | Required skills                          |
-| createdAt      | Creation timestamp                       |
-| client         | Reference to the user who posted the job |
+## ▶️ İşə Salma
+
+**Development rejimi (hot reload):**
+```bash
+npm run start:dev
 ```
 
-### The platform supports two payment models:
-**Fixed Price**
-  - The client sets a fixed amount for the entire project.
-**Hourly**
-  - The client sets a budget range based on hourly work.
-
-### Typical REST endpoints for jobs:
-```
-POST /jobs
-Create a new job
-
-GET /jobs
-Get all jobs
-
-GET /jobs/:id
-Get a specific job
-
-PATCH /jobs/:id
-Update job
-
-DELETE /jobs/:id
-Delete job
-
-```
-* Authorization rules:
-  - Only CLIENT users can create jobs
-  - Only job owner can update or delete a job
-
-
-# Proposals Module
-
-* The Proposals module allows freelancers to apply for jobs posted by clients.
-A proposal represents a freelancer’s offer to complete a job.
-
-* A proposal contains the following information:
-```
-| Field         | Description                |
-| ------------- | -------------------------- |
-| id            | Unique identifier          |
-| jobId         | Job reference              |
-| freelancerId  | User who sent the proposal |
-| coverLetter   | Message from freelancer    |
-| bidAmount     | Proposed price             |
-| estimatedDays | Estimated completion time  |
-| status        | Proposal status            |
-| createdAt     | Creation timestamp         |
-```
-* A proposal can have different statuses during its lifecycle.
-  - PENDING
-  - ACCEPTED
-  - REJECTED
-  - WITHDRAWN
-
-
-* Proposal Endpoints (Typical)
-```
-POST /proposals
-Send a proposal
-
-GET /proposals/job/:jobId
-Get proposals for a job
-
-GET /proposals/user/:userId
-Get proposals sent by a freelancer
-
-PATCH /proposals/:id/status
-Update proposal status
-
-DELETE /proposals/:id
-Withdraw proposal
+**Production build:**
+```bash
+npm run build
+npm run start:prod
 ```
 
-**Authorization rules:**
-  - Only FREELANCER users can send proposals
-  - Only CLIENT users can accept or reject proposals
+**Test:**
+```bash
+npm run test
+```
 
-### Relationship between entities:
+**E2E test:**
+```bash
+npm run test:e2e
+```
+
+---
+
+## 📚 Swagger Dokumentasiyası
+
+Server işə salındıqdan sonra:
+
+```
+http://localhost:3014/api
+```
+
+Swagger sizə imkan verir:
+- ✅ Bütün endpoint-ləri test edin
+- ✅ Request/response sxemlərini görün
+- ✅ JWT token ilə qorunan route-ları test edin (`Authorize` düyməsi)
+
+---
+
+## 🛡️ Təhlükəsizlik
+
+| Mexanizm | Təsvir |
+|----------|--------|
+| **bcrypt** | Şifrələr heç vaxt plain text saxlanılmır |
+| **HTTP-only Cookie** | Refresh token XSS hücumlarından qorunur |
+| **Token Revocation** | `revoke` flag ilə token-lar ləğv edilə bilər |
+| **Rate Limiting** | Auth route-larında brute-force qoruması |
+| **DTO Validasiya** | `class-validator` ilə bütün input-lar yoxlanır |
+| **CORS** | Yalnız icazəli origin-lər qəbul edilir |
+| **Role Guard** | Hər route üçün rol yoxlaması |
+| **Weekly Cleanup** | Köhnəlmiş token-lar avtomatik silinir |
+
+---
+
+## 🔗 Entity Əlaqələri
+
 ```
 User (CLIENT)
-        │
-        │ 1
-        │
-        ▼
-      Jobs
-        │
-        │ 1
-        │
-        ▼
-    Proposals
-        ▲
-        │
-        │ N
-        │
-User (FREELANCER)
+      │
+      │ 1:N
+      ▼
+  JobEntity ──────── OneToMany ──────► Proposal[]
+      │                                     ▲
+      │                                     │ N:1
+      │                                     │
+      └──────────────────────────────  User (FREELANCER)
+
+
+User
+  │
+  │ 1:N
+  ▼
+TokenEntity (refresh token-lar)
 ```
 
-# Environment Variables
-* Create a `.env` file in the root directory.
-  - JWT_ACCESS_SECRET=access_secret_key
-  - JWT_REFRESH_SECRET=refresh_secret_key
-  - JWT_EXPIRES_IN=10m
-  - JWT_REFRESH_TTL=7d
-
-# Installation
-  - Clone the repository
-  - git clone <https://github.com/aghasalimmusayev/upWork.git>
-
-  - Install dependencies
-  - npm install
-
-# Running the Application
-
-**Development mode**
-*npm run start:dev*
-
-**Production build**
-*npm run build*
-*npm run start:prod*
-
 ---
 
-# API Documentation
+## 👨‍💻 Müəllif
 
-* Swagger documentation is available after running the server.
-  - Open in browser:
-*http://localhost:3014/api*
-
-* Swagger allows you to:
-  - test endpoints
-  - view request schemas
-  - view response structures
+**Agasalim Musayev**
+- GitHub: [@aghasalimmusayev](https://github.com/aghasalimmusayev)
 
 ---
-
-
-
 

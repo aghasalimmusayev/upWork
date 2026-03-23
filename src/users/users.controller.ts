@@ -32,7 +32,7 @@ export class UsersController {
 
     @Patch('/password/:id')
     updatePassword(@Param('id', ParseIntPipe) id: number, @Body() body: ChangePassword, @CurrentUser() user: User) {
-        return this.userService.updatePassword(id, body.password, user.id)
+        return this.userService.updatePassword(id, body.oldPassword, body.password, user.id)
     }
 
     @Delete('/:id')
