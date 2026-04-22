@@ -42,8 +42,8 @@ export class UsersService {
         if (!user) throw new NotFoundException('User not found')
         const checkOldPassword = await bcrypt.compare(oldPassword, user.password)
         if (!checkOldPassword) throw new ForbiddenException('Your current password is wrong')
-        const checkNewPassword = await bcrypt.compare(password, user.password)
-        if (checkNewPassword) throw new ForbiddenException('You can not use the same password')
+        const checkSamePassword = await bcrypt.compare(password, user.password)
+        if (checkSamePassword) throw new ForbiddenException('You can not use the same password')
         await this.tokenRepo.update(
             { user: { id: user.id }, revoke: false },
             { revoke: true }

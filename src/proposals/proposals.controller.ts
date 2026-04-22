@@ -8,9 +8,11 @@ import { CreateProposalDto } from 'src/Common/Dtos/createProposal.dto';
 import { UpdateProposalDto } from 'src/Common/Dtos/updateProposal.dto';
 import { statusProposal } from 'src/Common/type';
 import { UpdateStatusProposal } from 'src/Common/Dtos/update-StatusProposal.dto';
+import { RoleGuard } from 'src/guards/role.guard';
+import { Roles } from 'src/decorators/roles.decorator';
 
 @ApiBearerAuth()
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RoleGuard)
 @Controller('proposals')
 export class ProposalsController {
     constructor(private proposalService: ProposalsService) { }
@@ -42,6 +44,7 @@ export class ProposalsController {
     }
 
     @Delete('/admin/:id')
+    @Roles('ADMIN')
     removeByAdmin(@Param('id', ParseIntPipe) id: number) {
         return this.proposalService.adminDelete(id)
     }

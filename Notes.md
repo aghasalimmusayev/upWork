@@ -3,7 +3,7 @@ https://www.upwork.com/
 # users:
 1) 
     - aga77ams@hotmail.com
-    - ams123456
+    - ams123456789
     - Agasalim
     - FREELANCER
 2) 
@@ -31,11 +31,7 @@ https://www.upwork.com/
     - Agasalim
 
 # Questions:
-- 1) User-leri login olanda gore bilirik, 
-    amma user-leri ancaq admin create ede biler ve gore biler, 
-    adi freelancer ve ya client gore bilmez
-    Bes bunu nece hell edeceyik?
-- 2) 
+- 1) 
 
 <!--Todo * DB-de token-i hashlayib saxlamaq lazimdi, bunu edende service-de deyisiklikler olacaq -->
-
+<!--Todo * RefreshToken test ele -->

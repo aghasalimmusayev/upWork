@@ -25,15 +25,11 @@ export class ProposalsService {
         const job = await this.jobService.findByUser(jobId)
         if (!job) throw new NotFoundException('Job not found')
         if (job.status === 'CLOSED') throw new BadRequestException('This job is already closed')
-        const jobOwner = await this.userService.findUser(job.user.id)
-        if (!jobOwner) throw new NotFoundException('JobOwner not found')
-        const proposal = this.repo.create({
-            ...data, user, job
-        })
+        const proposal = this.repo.create({ ...data, user, job })
         await this.repo.save(proposal)
         await this.mailService.sendNotifyProposal(
-            jobOwner?.email,
-            jobOwner?.name,
+            job.user?.email,
+            job.user?.name,
             user.name,
             job.title
         )
@@ -80,12 +76,12 @@ export class ProposalsService {
             throw new BadRequestException(`You cannot update status, proposal is already ${proposal.status}`)
         }
         if (userRole === 'FREELANCER') {
-            if (status !== statusProposal.WITHDRAWN) throw new ForbiddenException('Freelancer can only withdraw a proposal')
             if (proposal.user.id !== userId) throw new ForbiddenException('Only proposal owner can update this proposal status')
+            if (status !== statusProposal.WITHDRAWN) throw new ForbiddenException('Freelancer can only withdraw a proposal')
         }
         else if (userRole === 'CLIENT') {
-            if (status === statusProposal.WITHDRAWN) throw new ForbiddenException('Job owner cannot withdraw a proposal')
             if (proposal.job.user.id !== userId) throw new ForbiddenException('Only job owner can update proposal status')
+            if (status === statusProposal.WITHDRAWN) throw new ForbiddenException('Job owner cannot withdraw a proposal')
         }
         proposal.status = status
         proposal.updatedAt = new Date()
