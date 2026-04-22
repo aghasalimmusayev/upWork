@@ -1,83 +1,312 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FreeLance — Azərbaycan Freelance Platforması</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>WorkHub — Freelance Marketplace</title>
   <link rel="stylesheet" href="css/main.css" />
   <style>
-    .features { background: var(--white); }
-    .feature-card { text-align: center; padding: 32px 24px; }
-    .feature-icon { font-size: 2.5rem; margin-bottom: 16px; }
-    .feature-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
-    .feature-desc { font-size: 0.875rem; color: var(--gray-500); }
-    .categories { background: var(--gray-100); }
-    .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-    .cat-card { background: var(--white); border: 1px solid var(--gray-300); border-radius: var(--radius-lg); padding: 20px 16px; text-align: center; cursor: pointer; transition: var(--transition); }
-    .cat-card:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-2px); }
-    .cat-card .cat-icon { font-size: 1.8rem; margin-bottom: 8px; }
-    .cat-card .cat-name { font-weight: 600; font-size: 0.82rem; }
-    .cta { background: linear-gradient(135deg, var(--primary) 0%, #0d8a00 100%); color: white; text-align: center; padding: 72px 0; }
-    .cta h2 { color: white; margin-bottom: 12px; }
-    .cta p { color: rgba(255,255,255,.8); margin-bottom: 28px; }
-    .cta .btn { background: white; color: var(--primary); font-weight: 700; }
-    .cta .btn:hover { background: var(--gray-100); }
-    footer { background: var(--dark); color: rgba(255,255,255,.6); padding: 40px 0; text-align: center; font-size: 0.875rem; }
-    footer .footer-brand { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
-    footer .footer-brand span { color: white; }
+    /* ── FEATURES ── */
+    .features {
+      background: var(--white);
+    }
+
+    .feature-card {
+      text-align: center;
+      padding: 36px 24px;
+    }
+
+    .feature-icon {
+      font-size: 2.8rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .feature-title {
+      font-family: var(--font-sans);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--gray-900);
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-it-works {
+      background: var(--gray-50);
+    }
+
+    .step {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-number {
+      width: 52px;
+      height: 52px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      font-family: var(--font-sans);
+      font-size: 1.2rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 4px 14px rgba(5, 150, 105, .35);
+    }
+
+    .step-title {
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+    }
+
+    /* ── CATEGORIES ── */
+    .categories {
+      background: var(--white);
+    }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .cat-card {
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--r-lg);
+      padding: 20px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--ease);
+      background: var(--white);
+    }
+
+    .cat-card:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .cat-card .cat-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .cat-card .cat-name {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gray-700);
+    }
+
+    .cat-card:hover .cat-name {
+      color: var(--primary);
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: linear-gradient(135deg, var(--primary) 0%, #047857 100%);
+      color: white;
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta-section h2 {
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .cta-section p {
+      color: rgba(255, 255, 255, .85);
+      margin-bottom: 32px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-section .btn-white {
+      background: white;
+      color: var(--primary);
+      font-weight: 700;
+      padding: 14px 32px;
+      font-size: 1rem;
+      border-radius: var(--r-md);
+    }
+
+    .cta-section .btn-white:hover {
+      background: var(--gray-100);
+      transform: translateY(-2px);
+    }
+
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--gray-900);
+      padding: 28px 0;
+    }
+
+    .stats-bar-inner {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+    }
+
+    .stats-bar-item {
+      text-align: center;
+    }
+
+    .stats-bar-number {
+      font-family: var(--font-sans);
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+    }
+
+    .stats-bar-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, .5);
+      display: block;
+      margin-top: 2px;
+    }
+
+    /* ── SECTION LABELS ── */
+    .section-label {
+      display: inline-block;
+      background: var(--green-50);
+      color: var(--primary);
+      border: 1px solid var(--green-100);
+      border-radius: var(--r-full);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      margin-bottom: 12px;
+    }
   </style>
 </head>
+
 <body>
+
   <div id="navbar"></div>
 
   <!-- HERO -->
   <section class="hero">
     <div class="container">
-      <h1>Ən Yaxşı Freelancer-ləri Tapın</h1>
-      <p>Azərbaycanın ən böyük freelance platformasında iş verin və ya iş tapın</p>
+      <h1>Find the Perfect Freelancer<br>for Any Project</h1>
+      <p>WorkHub connects businesses with skilled professionals worldwide. Post a job or find great work — all in one
+        place.</p>
       <div class="hero-search">
-        <input type="text" id="heroSearch" placeholder="Veb dizayn, proqramlaşdırma, logo..." />
-        <button onclick="heroSearch()">🔍 Axtar</button>
+        <input type="text" id="heroSearchInput" placeholder="Search for skills, jobs, or categories..." />
+        <button onclick="heroSearch()">🔍 Search</button>
+      </div>
+      <div class="hero-chips">
+        <span class="hero-chip">Web Development</span>
+        <span class="hero-chip">UI/UX Design</span>
+        <span class="hero-chip">Mobile Apps</span>
+        <span class="hero-chip">Backend APIs</span>
+        <span class="hero-chip">Data Science</span>
+        <span class="hero-chip">DevOps</span>
       </div>
     </div>
   </section>
 
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-bar-inner">
+        <div class="stats-bar-item">
+          <span class="stats-bar-number">5,000+</span>
+          <span class="stats-bar-label">Freelancers</span>
+        </div>
+        <div class="stats-bar-item">
+          <span class="stats-bar-number">2,300+</span>
+          <span class="stats-bar-label">Jobs Posted</span>
+        </div>
+        <div class="stats-bar-item">
+          <span class="stats-bar-number">98%</span>
+          <span class="stats-bar-label">Satisfaction Rate</span>
+        </div>
+        <div class="stats-bar-item">
+          <span class="stats-bar-number">120+</span>
+          <span class="stats-bar-label">Countries</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- FEATURES -->
   <section class="section features">
     <div class="container">
-      <h2 class="text-center mb-24">Niyə FreeLance?</h2>
+      <div class="text-center mb-32">
+        <span class="section-label">Why WorkHub</span>
+        <h2>Everything You Need to Succeed</h2>
+      </div>
       <div class="grid-3">
-        <div class="feature-card card">
-          <div class="feature-icon">🚀</div>
-          <div class="feature-title">Sürətli Başlanğıc</div>
-          <p class="feature-desc">Dəqiqələr içində qeydiyyatdan keç, dərhal iş tap və ya iş ver</p>
+        <div class="card feature-card">
+          <span class="feature-icon">⚡</span>
+          <div class="feature-title">Fast Matching</div>
+          <p>Get matched with the best candidates in minutes, not days.</p>
         </div>
-        <div class="feature-card card">
-          <div class="feature-icon">🔒</div>
-          <div class="feature-title">Təhlükəsiz Ödəniş</div>
-          <p class="feature-desc">Şifrəli ödəniş sistemi ilə pul əməliyyatlarınız tam qorunur</p>
+        <div class="card feature-card">
+          <span class="feature-icon">🔒</span>
+          <div class="feature-title">Secure Platform</div>
+          <p>JWT-based authentication, encrypted communications, safe transactions.</p>
         </div>
-        <div class="feature-card card">
-          <div class="feature-icon">⭐</div>
-          <div class="feature-title">Keyfiyyətli Freelancer</div>
-          <p class="feature-desc">Yalnız doğrulanmış və peşəkar freelancer-lər platformada yer alır</p>
+        <div class="card feature-card">
+          <span class="feature-icon">📧</span>
+          <div class="feature-title">Email Notifications</div>
+          <p>Instant email alerts for new proposals and status updates.</p>
         </div>
-        <div class="feature-card card">
-          <div class="feature-icon">💬</div>
-          <div class="feature-title">Real-time Bildiriş</div>
-          <p class="feature-desc">Proposal statusu dəyişdikdə email bildirişi alırsınız</p>
+        <div class="card feature-card">
+          <span class="feature-icon">💼</span>
+          <div class="feature-title">Flexible Pricing</div>
+          <p>Choose between fixed price or hourly contracts — whatever fits your project.</p>
         </div>
-        <div class="feature-card card">
-          <div class="feature-icon">📊</div>
-          <div class="feature-title">Şəffaf Proses</div>
-          <p class="feature-desc">Hər mərhələdə müraciətlərinizin statusunu izləyin</p>
+        <div class="card feature-card">
+          <span class="feature-icon">📊</span>
+          <div class="feature-title">Proposal Tracking</div>
+          <p>Track every proposal from submission to acceptance with full transparency.</p>
         </div>
-        <div class="feature-card card">
-          <div class="feature-icon">🌍</div>
-          <div class="feature-title">Uzaqdan İş</div>
-          <p class="feature-desc">Dünyasının istənilən yerindən işlə bilərsən</p>
+        <div class="card feature-card">
+          <span class="feature-icon">🛡️</span>
+          <div class="feature-title">Role-Based Access</div>
+          <p>Tailored experiences for clients, freelancers, and administrators.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section how-it-works">
+    <div class="container">
+      <div class="text-center mb-32">
+        <span class="section-label">Simple Process</span>
+        <h2>How It Works</h2>
+      </div>
+      <div class="grid-3">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-title">Create Your Account</div>
+          <p>Sign up as a Client to post jobs, or as a Freelancer to apply. Takes under a minute.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-title">Post or Apply</div>
+          <p>Clients post jobs with budget and skills needed. Freelancers browse and submit proposals.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-title">Collaborate & Succeed</div>
+          <p>Accept the best proposal, work together, and get the project done.</p>
         </div>
       </div>
     </div>
@@ -86,83 +315,95 @@
   <!-- CATEGORIES -->
   <section class="section categories">
     <div class="container">
-      <h2 class="text-center mb-24">Populyar Kateqoriyalar</h2>
-      <div class="cat-grid">
-        <div class="cat-card" onclick="goToJobs('Proqramlaşdırma')"><div class="cat-icon">💻</div><div class="cat-name">Proqramlaşdırma</div></div>
-        <div class="cat-card" onclick="goToJobs('Dizayn')"><div class="cat-icon">🎨</div><div class="cat-name">Dizayn</div></div>
-        <div class="cat-card" onclick="goToJobs('Marketing')"><div class="cat-icon">📈</div><div class="cat-name">Marketing</div></div>
-        <div class="cat-card" onclick="goToJobs('Yazı')"><div class="cat-icon">✍️</div><div class="cat-name">Məzmun Yazısı</div></div>
-        <div class="cat-card" onclick="goToJobs('Video')"><div class="cat-icon">🎬</div><div class="cat-name">Video & Foto</div></div>
-        <div class="cat-card" onclick="goToJobs('Tərcümə')"><div class="cat-icon">🌐</div><div class="cat-name">Tərcümə</div></div>
-        <div class="cat-card" onclick="goToJobs('SEO')"><div class="cat-icon">🔍</div><div class="cat-name">SEO</div></div>
-        <div class="cat-card" onclick="goToJobs('Mühasibat')"><div class="cat-icon">📊</div><div class="cat-name">Mühasibat</div></div>
+      <div class="text-center mb-24">
+        <span class="section-label">Popular Categories</span>
+        <h2>Browse by Category</h2>
       </div>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <section class="section" style="background:var(--white)">
-    <div class="container text-center">
-      <h2 class="mb-24">Rəqəmlərlə FreeLance</h2>
-      <div class="stats-grid" style="max-width:700px;margin:0 auto">
-        <div class="stat-card"><div class="stat-number" id="statUsers">-</div><div class="stat-label">Aktif İstifadəçi</div></div>
-        <div class="stat-card"><div class="stat-number" id="statJobs">-</div><div class="stat-label">Açıq İş Elanı</div></div>
-        <div class="stat-card"><div class="stat-number" id="statProps">-</div><div class="stat-label">Tamamlanan Layihə</div></div>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="searchCategory('Web Development')">
+          <div class="cat-icon">🌐</div>
+          <div class="cat-name">Web Dev</div>
+        </div>
+        <div class="cat-card" onclick="searchCategory('Mobile Development')">
+          <div class="cat-icon">📱</div>
+          <div class="cat-name">Mobile Apps</div>
+        </div>
+        <div class="cat-card" onclick="searchCategory('UI/UX Design')">
+          <div class="cat-icon">🎨</div>
+          <div class="cat-name">UI/UX Design</div>
+        </div>
+        <div class="cat-card" onclick="searchCategory('Data Science')">
+          <div class="cat-icon">📊</div>
+          <div class="cat-name">Data Science</div>
+        </div>
+        <div class="cat-card" onclick="searchCategory('DevOps')">
+          <div class="cat-icon">⚙️</div>
+          <div class="cat-name">DevOps</div>
+        </div>
+        <div class="cat-card" onclick="searchCategory('Backend')">
+          <div class="cat-icon">🖥️</div>
+          <div class="cat-name">Backend</div>
+        </div>
+        <div class="cat-card" onclick="searchCategory('Blockchain')">
+          <div class="cat-icon">⛓️</div>
+          <div class="cat-name">Blockchain</div>
+        </div>
+        <div class="cat-card" onclick="searchCategory('AI/ML')">
+          <div class="cat-icon">🤖</div>
+          <div class="cat-name">AI / ML</div>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- CTA -->
-  <section class="cta">
+  <section class="cta-section">
     <div class="container">
-      <h2>İndi Başlayın!</h2>
-      <p>Qeydiyyatdan keçin, freelancer kimi iş tapın və ya iş verin</p>
-      <div class="d-flex gap-12 justify-content-center" style="justify-content:center;flex-wrap:wrap">
-        <a href="register.html" class="btn btn-lg">🚀 Pulsuz Qeydiyyat</a>
-        <a href="jobs.html" class="btn btn-lg btn-outline" style="border-color:white;color:white;background:transparent">İşlərə Bax</a>
+      <h2>Ready to Get Started?</h2>
+      <p>Join thousands of freelancers and clients building great things together.</p>
+      <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
+        <a href="register.html" class="btn btn-white">🚀 Sign Up Free</a>
+        <a href="jobs.html" class="btn btn-outline" style="border-color:rgba(255,255,255,.5);color:white">Browse
+          Jobs</a>
       </div>
     </div>
   </section>
 
-  <footer>
+  <!-- FOOTER -->
+  <footer class="footer">
     <div class="container">
-      <div class="footer-brand">Free<span>Lance</span></div>
-      <p>© 2025 FreeLance. Bütün hüquqlar qorunur.</p>
+      <div class="footer-brand">Work<span>Hub</span></div>
+      <p>Connecting talent with opportunity worldwide.</p>
+      <div class="footer-links">
+        <a href="jobs.html">Browse Jobs</a>
+        <a href="register.html">Sign Up</a>
+        <a href="login.html">Login</a>
+      </div>
+      <p style="margin-top:16px;opacity:.4;font-size:0.78rem">
+        Built with NestJS · TypeScript · PostgreSQL · JWT Auth
+      </p>
     </div>
   </footer>
 
   <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
   <script>
     renderNavbar('home');
 
     function heroSearch() {
-      const q = document.getElementById('heroSearch').value.trim();
-      if (q) window.location.href = `jobs.html?search=${encodeURIComponent(q)}`;
+      const q = document.getElementById('heroSearchInput').value.trim();
+      if (q) window.location.href = `jobs.html?q=${encodeURIComponent(q)}`;
       else window.location.href = 'jobs.html';
     }
-    document.getElementById('heroSearch').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') heroSearch();
-    });
 
-    function goToJobs(cat) {
+    function searchCategory(cat) {
       window.location.href = `jobs.html?category=${encodeURIComponent(cat)}`;
     }
 
-    // Load stats
-    async function loadStats() {
-      try {
-        const jobs = await JobsAPI.getAll();
-        const openJobs = jobs.filter(j => j.status === 'OPEN');
-        document.getElementById('statJobs').textContent = openJobs.length;
-        document.getElementById('statUsers').textContent = Math.floor(Math.random() * 50) + 20;
-        document.getElementById('statProps').textContent = Math.floor(Math.random() * 100) + 30;
-      } catch {
-        document.getElementById('statJobs').textContent = '0';
-        document.getElementById('statUsers').textContent = '0';
-        document.getElementById('statProps').textContent = '0';
-      }
-    }
-    loadStats();
+    document.getElementById('heroSearchInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') heroSearch();
+    });
   </script>
 </body>
+
 </html>

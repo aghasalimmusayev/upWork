@@ -1,174 +1,234 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard — FreeLance</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Dashboard — WorkHub</title>
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
 </head>
 <body>
+
   <div id="navbar"></div>
 
   <div class="container">
     <div class="page-layout">
+
       <!-- SIDEBAR -->
       <aside class="sidebar">
-        <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--gray-300)">
-          <div id="sidebarUser" class="d-flex align-center gap-12">
-            <div class="avatar" id="sideAvatar">?</div>
-            <div>
-              <div style="font-weight:700;font-size:.9rem" id="sideUserName">...</div>
-              <div id="sideUserRole"></div>
-            </div>
-          </div>
+        <div class="sidebar-title">Navigation</div>
+        <button class="sidebar-link active" id="sidebarDashboard" onclick="showTab('overview', this)">
+          <span class="icon">📊</span> Overview
+        </button>
+        <div id="sidebarClientLinks" style="display:none">
+          <button class="sidebar-link" onclick="showTab('myJobs', this)">
+            <span class="icon">💼</span> My Jobs
+          </button>
+          <button class="sidebar-link" onclick="showTab('receivedProposals', this)">
+            <span class="icon">📬</span> Received Proposals
+          </button>
         </div>
-        <nav class="sidebar-nav" id="sidebarNav"></nav>
+        <div id="sidebarFreelancerLinks" style="display:none">
+          <button class="sidebar-link" onclick="showTab('myProposals', this)">
+            <span class="icon">📄</span> My Proposals
+          </button>
+        </div>
+        <div class="sidebar-divider"></div>
+        <a href="profile.html" class="sidebar-link">
+          <span class="icon">👤</span> My Profile
+        </a>
+        <a href="jobs.html" class="sidebar-link">
+          <span class="icon">🔍</span> Browse Jobs
+        </a>
+        <button class="sidebar-link danger" onclick="_doLogout()">
+          <span class="icon">🚪</span> Sign Out
+        </button>
       </aside>
 
       <!-- MAIN CONTENT -->
-      <main>
-        <!-- STATS -->
-        <div class="stats-grid" id="statsGrid" style="display:none">
-          <!-- Filled by JS -->
+      <div class="main-content">
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content active">
+          <div class="dash-header">
+            <div class="dash-greeting">
+              <div class="hello">Good day 👋</div>
+              <div class="name" id="greetingName">Loading...</div>
+            </div>
+            <div id="clientPostJobBtn" style="display:none">
+              <button class="btn btn-primary" onclick="openModal('jobModal')">＋ Post a Job</button>
+            </div>
+          </div>
+          <div class="stats-grid" id="statsGrid">
+            <div class="page-loader"><div class="spinner"></div></div>
+          </div>
+          <div id="overviewContent"></div>
         </div>
 
-        <!-- TABS -->
-        <div class="tabs" id="mainTabs" style="display:none">
-          <!-- Filled by JS -->
+        <!-- CLIENT: MY JOBS TAB -->
+        <div id="tab-myJobs" class="tab-content">
+          <div class="dash-header">
+            <h2>My Jobs</h2>
+            <button class="btn btn-primary" onclick="openModal('jobModal')">＋ Post a Job</button>
+          </div>
+          <div id="myJobsList">
+            <div class="page-loader"><div class="spinner"></div></div>
+          </div>
         </div>
 
-        <!-- TAB CONTENTS -->
-        <div id="tabContents"></div>
-      </main>
+        <!-- CLIENT: RECEIVED PROPOSALS TAB -->
+        <div id="tab-receivedProposals" class="tab-content">
+          <h2 class="mb-24">Received Proposals</h2>
+          <div id="receivedProposalsList">
+            <div class="page-loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- FREELANCER: MY PROPOSALS TAB -->
+        <div id="tab-myProposals" class="tab-content">
+          <div class="dash-header">
+            <h2>My Proposals</h2>
+            <a href="jobs.html" class="btn btn-outline">Find Jobs</a>
+          </div>
+          <div id="myProposalsList">
+            <div class="page-loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
-  <!-- CREATE/EDIT JOB MODAL -->
+  <!-- ── CREATE / EDIT JOB MODAL ── -->
   <div class="modal-overlay" id="jobModal">
     <div class="modal" style="max-width:560px">
       <div class="modal-header">
-        <h3 id="jobModalTitle">Yeni İş Yarat</h3>
+        <h3 id="jobModalTitle">Post a New Job</h3>
         <button class="modal-close">✕</button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-danger" id="jobErr"><span>❌</span><span id="jobErrMsg"></span></div>
-        <form id="jobForm" novalidate>
-          <input type="hidden" id="editJobId" />
+        <div id="jobFormAlert" class="alert alert-danger hidden"></div>
+        <input type="hidden" id="editJobId" />
+        <div class="form-group">
+          <label class="form-label">Job Title <span style="color:var(--danger)">*</span></label>
+          <input class="form-control" type="text" id="jobTitle" placeholder="e.g. React Developer" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="jobDesc" rows="4" placeholder="Describe the job..."></textarea>
+        </div>
+        <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">İş Başlığı *</label>
-            <input class="form-control" type="text" id="jobTitle" placeholder="Məs: React.js Frontend Developer" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Təsvir</label>
-            <textarea class="form-control" id="jobDesc" rows="4" placeholder="İşin ətraflı təsviri..."></textarea>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="form-group">
-              <label class="form-label">Ödəniş Tipi *</label>
-              <select class="form-control" id="jobPayment">
-                <option value="FIXED">Sabit Qiymət</option>
-                <option value="HOURLY">Saatlıq</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Qiymət ($) *</label>
-              <input class="form-control" type="number" id="jobPrice" placeholder="0" min="1" />
-            </div>
+            <label class="form-label">Payment Type <span style="color:var(--danger)">*</span></label>
+            <select class="form-control" id="jobPayment">
+              <option value="FIXED">Fixed Price</option>
+              <option value="HOURLY">Hourly</option>
+            </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Kateqoriya *</label>
-            <input class="form-control" type="text" id="jobCategory" placeholder="Məs: Proqramlaşdırma" />
+            <label class="form-label">Budget ($) <span style="color:var(--danger)">*</span></label>
+            <input class="form-control" type="number" id="jobPrice" placeholder="500" min="1" />
           </div>
-          <div class="form-group">
-            <label class="form-label">Bacarıqlar (vergüllə ayırın) *</label>
-            <input class="form-control" type="text" id="jobSkills" placeholder="Məs: React, TypeScript, Node.js" />
-          </div>
-        </form>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category <span style="color:var(--danger)">*</span></label>
+          <input class="form-control" type="text" id="jobCategory" placeholder="e.g. Web Development" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Required Skills <span style="color:var(--danger)">*</span></label>
+          <input class="form-control" type="text" id="jobSkills" placeholder="React, TypeScript, Node.js" />
+          <span class="form-hint">Separate with commas</span>
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('jobModal')">Ləğv et</button>
-        <button class="btn btn-primary" id="saveJobBtn" onclick="saveJob()">💾 Yadda Saxla</button>
+        <button class="btn btn-ghost" onclick="closeModal('jobModal')">Cancel</button>
+        <button class="btn btn-primary" id="saveJobBtn" onclick="saveJob()">💾 Save</button>
       </div>
     </div>
   </div>
 
-  <!-- CHANGE STATUS MODAL -->
-  <div class="modal-overlay" id="statusModal">
+  <!-- ── JOB STATUS MODAL ── -->
+  <div class="modal-overlay" id="jobStatusModal">
     <div class="modal" style="max-width:360px">
-      <div class="modal-header"><h3>İş Statusunu Dəyiş</h3><button class="modal-close">✕</button></div>
+      <div class="modal-header">
+        <h3>Change Job Status</h3>
+        <button class="modal-close">✕</button>
+      </div>
       <div class="modal-body">
         <input type="hidden" id="statusJobId" />
         <div class="form-group">
-          <label class="form-label">Yeni Status</label>
+          <label class="form-label">New Status</label>
           <select class="form-control" id="newJobStatus">
-            <option value="OPEN">✅ Açıq</option>
-            <option value="CLOSED">🔒 Bağlı</option>
+            <option value="OPEN">🟢 Open</option>
+            <option value="CLOSED">🔒 Closed</option>
           </select>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('statusModal')">Ləğv et</button>
-        <button class="btn btn-primary" onclick="saveJobStatus()">Yadda Saxla</button>
+        <button class="btn btn-ghost" onclick="closeModal('jobStatusModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveJobStatus()">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- UPDATE PROPOSAL MODAL -->
-  <div class="modal-overlay" id="editPropModal">
-    <div class="modal">
-      <div class="modal-header"><h3>Müraciəti Yenilə</h3><button class="modal-close">✕</button></div>
+  <!-- ── EDIT PROPOSAL MODAL ── -->
+  <div class="modal-overlay" id="editProposalModal">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <h3>Edit Proposal</h3>
+        <button class="modal-close">✕</button>
+      </div>
       <div class="modal-body">
-        <div class="alert alert-danger" id="editPropErr"><span>❌</span><span id="editPropErrMsg"></span></div>
-        <form id="editPropForm">
-          <input type="hidden" id="editPropId" />
+        <div id="editPropAlert" class="alert alert-danger hidden"></div>
+        <input type="hidden" id="editPropId" />
+        <div class="form-group">
+          <label class="form-label">Cover Letter</label>
+          <textarea class="form-control" id="editPropLetter" rows="5"></textarea>
+        </div>
+        <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">Müraciət Məktubu</label>
-            <textarea class="form-control" id="editPropCover" rows="4"></textarea>
+            <label class="form-label">Bid Amount ($)</label>
+            <input class="form-control" type="number" id="editPropAmount" min="1" />
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="form-group">
-              <label class="form-label">Məbləğ ($)</label>
-              <input class="form-control" type="number" id="editPropAmount" min="1" />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Müddət (gün)</label>
-              <input class="form-control" type="number" id="editPropDays" min="1" />
-            </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Days</label>
+            <input class="form-control" type="number" id="editPropDays" min="1" />
           </div>
-        </form>
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('editPropModal')">Ləğv et</button>
-        <button class="btn btn-primary" id="saveEditPropBtn" onclick="saveEditProposal()">💾 Yadda Saxla</button>
+        <button class="btn btn-ghost" onclick="closeModal('editProposalModal')">Cancel</button>
+        <button class="btn btn-primary" id="saveEditPropBtn" onclick="saveEditProposal()">💾 Update</button>
       </div>
     </div>
   </div>
 
-  <!-- PROPOSAL STATUS MODAL (for CLIENT) -->
+  <!-- ── PROPOSAL STATUS MODAL (CLIENT) ── -->
   <div class="modal-overlay" id="propStatusModal">
     <div class="modal" style="max-width:380px">
-      <div class="modal-header"><h3>Müraciət Statusu</h3><button class="modal-close">✕</button></div>
+      <div class="modal-header">
+        <h3>Update Proposal Status</h3>
+        <button class="modal-close">✕</button>
+      </div>
       <div class="modal-body">
         <input type="hidden" id="propStatusId" />
         <div class="form-group">
-          <label class="form-label">Status Seçin</label>
+          <label class="form-label">Decision</label>
           <select class="form-control" id="newPropStatus">
-            <option value="ACCEPTED">✅ Qəbul Et</option>
-            <option value="REJECTED">❌ Rədd Et</option>
+            <option value="ACCEPTED">✅ Accept</option>
+            <option value="REJECTED">❌ Reject</option>
           </select>
         </div>
+        <p class="text-muted mt-8" style="font-size:.82rem">The freelancer will be notified by email.</p>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('propStatusModal')">Ləğv et</button>
-        <button class="btn btn-primary" onclick="savePropStatus()">Yadda Saxla</button>
+        <button class="btn btn-ghost" onclick="closeModal('propStatusModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="savePropStatus()">Save Decision</button>
       </div>
     </div>
   </div>
 
   <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
 </html>

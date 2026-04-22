@@ -1,438 +1,469 @@
-// ===== DASHBOARD LOGIC =====
-if (!requireAuth()) throw new Error('Not authenticated');
-if (Auth.isAdmin()) { window.location.href = 'admin.html'; throw new Error('Admin redirect'); }
+/* ============================================================
+   DASHBOARD.JS — Role-based dashboard logic
+   ============================================================ */
 
-const user = Auth.getUser();
-const role = Auth.getRole();
+if (!requireAuth()) throw new Error('Auth required');
 
-// Render navbar & sidebar
-renderNavbar('dashboard');
-renderSidebar();
+let myJobs       = [];
+let myProposals  = [];
+let activeTab    = 'overview';
+const role       = Auth.getRole();
+const user       = Auth.getUser();
 
-let myJobs = [];
-let myProposals = [];
-let incomingProposals = [];
+// ── INIT ──
+(async function init() {
+  renderNavbar('dashboard');
 
-function renderSidebar() {
-  document.getElementById('sideAvatar').textContent = getInitials(user?.name, user?.surname);
-  document.getElementById('sideUserName').textContent = (user?.name || '') + ' ' + (user?.surname || '');
-  document.getElementById('sideUserRole').innerHTML = `<span class="${badgeForStatus(role)}">${role}</span>`;
+  // Greeting
+  document.getElementById('greetingName').textContent =
+    user ? (user.name ? `${user.name} ${user.surname || ''}`.trim() : user.email) : '';
 
-  const links = role === 'CLIENT' ? [
-    { icon: '🏠', label: 'Ana Səhifə', tab: 'overview' },
-    { icon: '💼', label: 'İşlərim', tab: 'myjobs' },
-    { icon: '📄', label: 'Gələn Müraciətlər', tab: 'incoming' },
-    { icon: '👤', label: 'Profilim', href: 'profile.html' },
-  ] : [
-    { icon: '🏠', label: 'Ana Səhifə', tab: 'overview' },
-    { icon: '🔍', label: 'İşlər Axtar', href: 'jobs.html' },
-    { icon: '📄', label: 'Müraciətlərim', tab: 'proposals' },
-    { icon: '👤', label: 'Profilim', href: 'profile.html' },
-  ];
-
-  document.getElementById('sidebarNav').innerHTML = links.map(l => l.href
-    ? `<a href="${l.href}" class="sidebar-link"><span class="icon">${l.icon}</span>${l.label}</a>`
-    : `<button class="sidebar-link" onclick="switchTab('${l.tab}')"><span class="icon">${l.icon}</span>${l.label}</button>`
-  ).join('');
-}
-
-async function loadDashboard() {
+  // Show role-specific sidebar links
   if (role === 'CLIENT') {
-    await loadClientDashboard();
-  } else {
-    await loadFreelancerDashboard();
-  }
-}
-
-// ===== CLIENT =====
-async function loadClientDashboard() {
-  try {
-    [myJobs, incomingProposals] = await Promise.all([
-      JobsAPI.getAll().then(jobs => jobs.filter(j => {
-        // We can't directly know which jobs belong to this user without owner info
-        // So we load all and show manage options
-        return true;
-      })),
-      ProposalsAPI.getAll()
-    ]);
-    // Filter my jobs: get from proposals job.user
-    myJobs = await JobsAPI.getAll();
-  } catch {}
-
-  // Stats
-  const openJobs = myJobs.filter ? myJobs.filter(j => j.status === 'OPEN').length : 0;
-  document.getElementById('statsGrid').style.display = 'grid';
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card"><div class="stat-number">${myJobs.length || 0}</div><div class="stat-label">Ümumi İşlər</div></div>
-    <div class="stat-card"><div class="stat-number">${openJobs}</div><div class="stat-label">Açıq İşlər</div></div>
-    <div class="stat-card"><div class="stat-number">${incomingProposals.length || 0}</div><div class="stat-label">Gələn Müraciətlər</div></div>
-    <div class="stat-card"><div class="stat-number">${incomingProposals.filter ? incomingProposals.filter(p => p.status === 'PENDING').length : 0}</div><div class="stat-label">Gözləyən Müraciətlər</div></div>
-  `;
-
-  // Tabs
-  document.getElementById('mainTabs').style.display = 'flex';
-  document.getElementById('mainTabs').innerHTML = `
-    <button class="tab-btn active" onclick="switchTabEl(this, 'overview')">🏠 İcmal</button>
-    <button class="tab-btn" onclick="switchTabEl(this, 'myjobs')">💼 İşlərim</button>
-    <button class="tab-btn" onclick="switchTabEl(this, 'incoming')">📄 Müraciətlər</button>
-  `;
-
-  document.getElementById('tabContents').innerHTML = `
-    <div class="tab-content active" id="tab-overview">${renderClientOverview()}</div>
-    <div class="tab-content" id="tab-myjobs">${renderMyJobs()}</div>
-    <div class="tab-content" id="tab-incoming">${renderIncomingProposals()}</div>
-  `;
-}
-
-function renderClientOverview() {
-  const recent = (incomingProposals || []).slice(0, 5);
-  return `
-    <div class="card mb-16">
-      <div class="card-header">
-        <h3>👋 Xoş Gəldiniz, ${escHtml(user?.name)}!</h3>
-        <button class="btn btn-primary btn-sm" onclick="openCreateJob()">+ Yeni İş</button>
-      </div>
-      <div class="card-body">
-        <p>Siz <strong>CLIENT</strong> olaraq iş elanları yerləşdirə, freelancer-lərin müraciətlərini idarə edə bilərsiniz.</p>
-      </div>
-    </div>
-    <h3 class="mb-16">Son Müraciətlər</h3>
-    ${recent.length === 0
-      ? `<div class="empty-state"><div class="icon">📭</div><p>Hələ müraciət yoxdur</p></div>`
-      : recent.map(p => renderProposalCard(p, true)).join('')}
-  `;
-}
-
-function renderMyJobs() {
-  return `
-    <div class="section-header">
-      <h3>💼 Bütün İşlər</h3>
-      <button class="btn btn-primary" onclick="openCreateJob()">+ Yeni İş Yarat</button>
-    </div>
-    <div id="myJobsList">
-      ${myJobs.length === 0
-        ? `<div class="empty-state"><div class="icon">💼</div><p>Hələ iş elanınız yoxdur</p><button class="btn btn-primary" onclick="openCreateJob()">İlk işinizi yaradın</button></div>`
-        : myJobs.map(j => renderJobRow(j)).join('')
-      }
-    </div>
-  `;
-}
-
-function renderJobRow(j) {
-  return `
-    <div class="job-card mb-16" style="cursor:default">
-      <div class="job-card-header">
-        <div>
-          <div class="job-card-title">${escHtml(j.title)}</div>
-          <div class="job-card-meta">
-            <span>💰 $${j.price}</span>
-            <span>📂 ${escHtml(j.category)}</span>
-            <span>📅 ${formatDate(j.createdAt)}</span>
-          </div>
-        </div>
-        <span class="${badgeForStatus(j.status)}">${j.status === 'OPEN' ? 'Açıq' : 'Bağlı'}</span>
-      </div>
-      <div class="d-flex gap-8 flex-wrap mt-8">
-        <button class="btn btn-sm btn-outline" onclick="openEditJob(${j.id})">✏️ Düzəliş</button>
-        <button class="btn btn-sm btn-ghost" onclick="openStatusChange(${j.id}, '${j.status}')">🔄 Status</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteJob(${j.id})">🗑️ Sil</button>
-      </div>
-    </div>`;
-}
-
-function renderIncomingProposals() {
-  if (!incomingProposals || incomingProposals.length === 0)
-    return `<div class="empty-state"><div class="icon">📭</div><p>Hələ müraciət yoxdur</p></div>`;
-  return incomingProposals.map(p => renderProposalCard(p, true)).join('');
-}
-
-// ===== FREELANCER =====
-async function loadFreelancerDashboard() {
-  try {
-    myProposals = await ProposalsAPI.getAll();
-  } catch { myProposals = []; }
-
-  const pending = myProposals.filter(p => p.status === 'PENDING').length;
-  const accepted = myProposals.filter(p => p.status === 'ACCEPTED').length;
-
-  document.getElementById('statsGrid').style.display = 'grid';
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card"><div class="stat-number">${myProposals.length}</div><div class="stat-label">Ümumi Müraciətlər</div></div>
-    <div class="stat-card"><div class="stat-number">${pending}</div><div class="stat-label">Gözləyən</div></div>
-    <div class="stat-card"><div class="stat-number">${accepted}</div><div class="stat-label">Qəbul Edilmiş</div></div>
-    <div class="stat-card"><div class="stat-number">${myProposals.filter(p=>p.status==='REJECTED').length}</div><div class="stat-label">Rədd Edilmiş</div></div>
-  `;
-
-  document.getElementById('mainTabs').style.display = 'flex';
-  document.getElementById('mainTabs').innerHTML = `
-    <button class="tab-btn active" onclick="switchTabEl(this, 'overview')">🏠 İcmal</button>
-    <button class="tab-btn" onclick="switchTabEl(this, 'proposals')">📄 Müraciətlərim</button>
-  `;
-
-  document.getElementById('tabContents').innerHTML = `
-    <div class="tab-content active" id="tab-overview">${renderFreelancerOverview()}</div>
-    <div class="tab-content" id="tab-proposals">${renderMyProposals()}</div>
-  `;
-}
-
-function renderFreelancerOverview() {
-  const recent = myProposals.slice(0, 5);
-  return `
-    <div class="card mb-16">
-      <div class="card-header">
-        <h3>👋 Xoş Gəldiniz, ${escHtml(user?.name)}!</h3>
-        <a href="/jobs.html" class="btn btn-primary btn-sm">🔍 İş Axtar</a>
-      </div>
-      <div class="card-body">
-        <p>Siz <strong>FREELANCER</strong> olaraq iş elanlarına müraciət edə, müraciətlərinizi izləyə bilərsiniz.</p>
-      </div>
-    </div>
-    <h3 class="mb-16">Son Müraciətlər</h3>
-    ${recent.length === 0
-      ? `<div class="empty-state"><div class="icon">📄</div><p>Hələ müraciətiniz yoxdur</p><a href="/jobs.html" class="btn btn-outline">İşlərə Bax</a></div>`
-      : recent.map(p => renderProposalCard(p, false)).join('')}
-  `;
-}
-
-function renderMyProposals() {
-  if (myProposals.length === 0)
-    return `<div class="empty-state"><div class="icon">📄</div><p>Hələ müraciətiniz yoxdur</p><a href="/jobs.html" class="btn btn-primary">İş Axtar</a></div>`;
-  return `
-    <div class="section-header"><h3>📄 Müraciətlərim</h3></div>
-    ${myProposals.map(p => renderProposalCard(p, false)).join('')}
-  `;
-}
-
-function renderProposalCard(p, isClient) {
-  const statusLabels = { PENDING: 'Gözləyir', ACCEPTED: 'Qəbul edildi', REJECTED: 'Rədd edildi', WITHDRAWN: 'Geri çəkildi' };
-  return `
-    <div class="proposal-card">
-      <div class="proposal-header">
-        <div>
-          <div style="font-weight:700">${p.job ? escHtml(p.job.title) : 'İş'}</div>
-          <div class="proposal-meta">
-            <span>💰 $${p.amount}</span>
-            <span>📅 ${p.estimatedDays} gün</span>
-            <span>🗓 ${formatDate(p.createdAt)}</span>
-          </div>
-        </div>
-        <span class="${badgeForStatus(p.status)}">${statusLabels[p.status] || p.status}</span>
-      </div>
-      ${p.coverLetter ? `<p style="font-size:.875rem;color:var(--gray-700);margin:8px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${escHtml(p.coverLetter)}</p>` : ''}
-      <div class="proposal-actions">
-        ${isClient && p.status === 'PENDING'
-          ? `<button class="btn btn-sm btn-primary" onclick="openPropStatusModal(${p.id})">📝 Status Dəyiş</button>`
-          : ''}
-        ${!isClient && p.status === 'PENDING'
-          ? `
-            <button class="btn btn-sm btn-outline" onclick="openEditProposal(${p.id})">✏️ Düzəliş</button>
-            <button class="btn btn-sm btn-warning" onclick="withdrawProposal(${p.id})">↩️ Geri çək</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteProposal(${p.id})">🗑️ Sil</button>
-          ` : ''}
-      </div>
-    </div>`;
-}
-
-// ===== TAB SWITCH =====
-function switchTab(tabName) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  const tabEl = document.getElementById(`tab-${tabName}`);
-  if (tabEl) tabEl.classList.add('active');
-  const btn = document.querySelector(`.tab-btn[onclick*="${tabName}"]`);
-  if (btn) btn.classList.add('active');
-}
-
-function switchTabEl(btn, tabName) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  const tabEl = document.getElementById(`tab-${tabName}`);
-  if (tabEl) tabEl.classList.add('active');
-}
-
-// ===== JOB CRUD =====
-function openCreateJob() {
-  document.getElementById('jobModalTitle').textContent = 'Yeni İş Yarat';
-  document.getElementById('editJobId').value = '';
-  document.getElementById('jobForm').reset();
-  document.getElementById('jobErr').classList.remove('show');
-  openModal('jobModal');
-}
-
-async function openEditJob(id) {
-  const job = myJobs.find(j => j.id === id);
-  if (!job) return;
-  document.getElementById('jobModalTitle').textContent = 'İşi Düzəliş Et';
-  document.getElementById('editJobId').value = id;
-  document.getElementById('jobTitle').value = job.title || '';
-  document.getElementById('jobDesc').value = job.description || '';
-  document.getElementById('jobPayment').value = job.paymentType || 'FIXED';
-  document.getElementById('jobPrice').value = job.price || '';
-  document.getElementById('jobCategory').value = job.category || '';
-  document.getElementById('jobSkills').value = (job.skills || []).join(', ');
-  document.getElementById('jobErr').classList.remove('show');
-  openModal('jobModal');
-}
-
-async function saveJob() {
-  const id = document.getElementById('editJobId').value;
-  const title = document.getElementById('jobTitle').value.trim();
-  const description = document.getElementById('jobDesc').value.trim();
-  const paymentType = document.getElementById('jobPayment').value;
-  const price = parseFloat(document.getElementById('jobPrice').value);
-  const category = document.getElementById('jobCategory').value.trim();
-  const skillsStr = document.getElementById('jobSkills').value.trim();
-  const skills = skillsStr.split(',').map(s => s.trim()).filter(Boolean);
-
-  if (!title || !price || !category || skills.length === 0) {
-    document.getElementById('jobErrMsg').textContent = 'Bütün məcburi sahələri doldurun';
-    document.getElementById('jobErr').classList.add('show');
+    document.getElementById('sidebarClientLinks').style.display = 'block';
+    document.getElementById('clientPostJobBtn').style.display   = 'block';
+  } else if (role === 'FREELANCER') {
+    document.getElementById('sidebarFreelancerLinks').style.display = 'block';
+  } else if (role === 'ADMIN') {
+    window.location.href = 'admin.html';
     return;
   }
 
-  const btn = document.getElementById('saveJobBtn');
-  btn.classList.add('btn-loading'); btn.disabled = true;
-  document.getElementById('jobErr').classList.remove('show');
+  await loadAll();
+})();
 
+// ── LOAD DATA ──
+async function loadAll() {
   try {
-    const data = { title, paymentType, price, category, skills };
-    if (description) data.description = description;
-
-    if (id) {
-      await JobsAPI.update(parseInt(id), data);
-      showToast('İş uğurla yeniləndi ✅', 'success');
-    } else {
-      await JobsAPI.create(data);
-      showToast('İş uğurla yaradıldı 🎉', 'success');
+    if (role === 'CLIENT') {
+      [myJobs, myProposals] = await Promise.all([
+        JobsAPI.getAll().then(jobs => jobs.filter(j => {
+          // Filter by current user (getAll returns all — we need to compare)
+          return true; // all jobs; CLIENT sees their own via findJob(:id)
+        })),
+        ProposalsAPI.getAll()
+      ]);
+      // Note: getAll() returns all open jobs. Proposals for client = received proposals on their jobs.
+      renderOverview();
+      renderMyJobs(myJobs);
+      renderReceivedProposals(myProposals);
+    } else if (role === 'FREELANCER') {
+      myProposals = await ProposalsAPI.getAll();
+      renderOverview();
+      renderMyProposals(myProposals);
     }
-    closeModal('jobModal');
-    await loadClientDashboard();
   } catch (err) {
-    document.getElementById('jobErrMsg').textContent = getErrorMessage(err);
-    document.getElementById('jobErr').classList.add('show');
-  } finally {
-    btn.classList.remove('btn-loading'); btn.disabled = false;
+    showToast('Failed to load data: ' + getErrorMessage(err), 'error');
+    document.getElementById('statsGrid').innerHTML = `<p class="text-muted">Could not load stats.</p>`;
   }
 }
 
-function openStatusChange(id, current) {
-  document.getElementById('statusJobId').value = id;
-  document.getElementById('newJobStatus').value = current;
-  openModal('statusModal');
+// ── OVERVIEW ──
+function renderOverview() {
+  const statsGrid = document.getElementById('statsGrid');
+
+  if (role === 'CLIENT') {
+    const open   = myJobs.filter(j => j.status === 'OPEN').length;
+    const closed = myJobs.filter(j => j.status === 'CLOSED').length;
+    const pending = myProposals.filter(p => p.status === 'PENDING').length;
+    const accepted = myProposals.filter(p => p.status === 'ACCEPTED').length;
+
+    statsGrid.innerHTML = `
+      <div class="stat-card"><div class="stat-icon">💼</div><div class="stat-number">${myJobs.length}</div><div class="stat-label">Total Jobs</div></div>
+      <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-number">${open}</div><div class="stat-label">Open Jobs</div></div>
+      <div class="stat-card"><div class="stat-icon">📬</div><div class="stat-number">${myProposals.length}</div><div class="stat-label">Proposals Received</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-number">${accepted}</div><div class="stat-label">Accepted</div></div>
+    `;
+
+    document.getElementById('overviewContent').innerHTML = `
+      <div class="card">
+        <div class="card-header">
+          <h4>Recent Activity</h4>
+        </div>
+        <div class="card-body">
+          ${myProposals.length === 0
+            ? `<p class="text-muted">No proposals received yet. Post jobs to start receiving applications.</p>`
+            : myProposals.slice(0, 5).map(proposalRowClient).join('')
+          }
+        </div>
+      </div>
+    `;
+  } else if (role === 'FREELANCER') {
+    const pending   = myProposals.filter(p => p.status === 'PENDING').length;
+    const accepted  = myProposals.filter(p => p.status === 'ACCEPTED').length;
+    const rejected  = myProposals.filter(p => p.status === 'REJECTED').length;
+    const withdrawn = myProposals.filter(p => p.status === 'WITHDRAWN').length;
+
+    statsGrid.innerHTML = `
+      <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-number">${myProposals.length}</div><div class="stat-label">Total Proposals</div></div>
+      <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-number">${pending}</div><div class="stat-label">Pending</div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-number">${accepted}</div><div class="stat-label">Accepted</div></div>
+      <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-number">${rejected}</div><div class="stat-label">Rejected</div></div>
+    `;
+
+    document.getElementById('overviewContent').innerHTML = `
+      <div class="card mt-16">
+        <div class="card-header"><h4>Recent Proposals</h4></div>
+        <div class="card-body">
+          ${myProposals.length === 0
+            ? `<p class="text-muted">No proposals yet. <a href="jobs.html" style="color:var(--primary)">Browse open jobs</a> to apply.</p>`
+            : myProposals.slice(0, 4).map(proposalCardFreelancer).join('')
+          }
+        </div>
+      </div>
+    `;
+  }
+}
+
+// ── TAB SWITCH ──
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${name}`)?.classList.add('active');
+  if (btn) btn.classList.add('active');
+  activeTab = name;
+}
+
+// ── CLIENT: MY JOBS ──
+function renderMyJobs(jobs) {
+  const container = document.getElementById('myJobsList');
+  if (jobs.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">💼</div>
+        <h3>No jobs posted yet</h3>
+        <p>Post your first job and start receiving proposals.</p>
+        <button class="btn btn-primary" onclick="openModal('jobModal')">＋ Post a Job</button>
+      </div>
+    `;
+    return;
+  }
+  container.innerHTML = jobs.map(jobRowClient).join('');
+}
+
+function jobRowClient(job) {
+  const skills = Array.isArray(job.skills) ? job.skills : (job.skills || '').split(',');
+  const skillsHtml = skills.slice(0, 4).map(s => `<span class="tag">${escHtml(s.trim())}</span>`).join('');
+
+  return `
+    <div class="card proposal-card mb-12">
+      <div class="proposal-card-header">
+        <div>
+          <div style="font-size:.75rem;color:var(--primary);font-weight:700">${escHtml(job.category)}</div>
+          <div class="proposal-job-title">${escHtml(job.title)}</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${skillsHtml}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          ${statusBadge(job.status)}
+          <div class="proposal-amount mt-4">$${Number(job.price).toLocaleString()}</div>
+          <div style="font-size:.72rem;color:var(--gray-400)">${job.paymentType}</div>
+        </div>
+      </div>
+      <div class="proposal-meta">
+        <span>📅 ${formatDate(job.createdAt)}</span>
+      </div>
+      <div class="proposal-actions">
+        <button class="btn btn-outline btn-sm" onclick="openEditJobModal(${job.id})">✏️ Edit</button>
+        <button class="btn btn-ghost btn-sm" onclick="openJobStatusModal(${job.id}, '${job.status}')">🔄 Change Status</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteJob(${job.id})">🗑 Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── CLIENT: RECEIVED PROPOSALS ──
+function renderReceivedProposals(proposals) {
+  const container = document.getElementById('receivedProposalsList');
+  if (proposals.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📬</div>
+        <h3>No proposals received yet</h3>
+        <p>Keep your jobs open to receive proposals from freelancers.</p>
+      </div>
+    `;
+    return;
+  }
+  container.innerHTML = proposals.map(proposalRowClient).join('');
+}
+
+function proposalRowClient(p) {
+  const canDecide = p.status === 'PENDING';
+  return `
+    <div class="card proposal-card mb-12">
+      <div class="proposal-card-header">
+        <div>
+          <div style="font-size:.75rem;color:var(--gray-500);margin-bottom:2px">
+            Job: <strong style="color:var(--gray-800)">${escHtml(p.job?.title || 'N/A')}</strong>
+          </div>
+          <div class="proposal-amount">$${Number(p.amount).toLocaleString()}</div>
+          <div class="proposal-meta mt-4">
+            <span>⏱ ${p.estimatedDays} days</span>
+            <span>📅 ${formatDate(p.createdAt)}</span>
+          </div>
+        </div>
+        <div>${statusBadge(p.status)}</div>
+      </div>
+      <div class="proposal-cover">${escHtml(p.coverLetter || '')}</div>
+      <div class="proposal-actions">
+        ${canDecide
+          ? `<button class="btn btn-primary btn-sm" onclick="openPropStatusModal(${p.id})">Review</button>`
+          : `<span style="font-size:.82rem;color:var(--gray-500)">Decision made</span>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+// ── FREELANCER: MY PROPOSALS ──
+function renderMyProposals(proposals) {
+  const container = document.getElementById('myProposalsList');
+  if (proposals.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📄</div>
+        <h3>No proposals yet</h3>
+        <p>Browse open jobs and submit your first proposal.</p>
+        <a href="jobs.html" class="btn btn-primary">Browse Jobs</a>
+      </div>
+    `;
+    return;
+  }
+  container.innerHTML = proposals.map(proposalCardFreelancer).join('');
+}
+
+function proposalCardFreelancer(p) {
+  const isPending = p.status === 'PENDING';
+  return `
+    <div class="card proposal-card mb-12">
+      <div class="proposal-card-header">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.75rem;color:var(--gray-500);margin-bottom:2px">
+            Applied to: <strong style="color:var(--gray-800)">${escHtml(p.job?.title || 'Job #' + p.id)}</strong>
+            ${p.job?.status ? statusBadge(p.job.status) : ''}
+          </div>
+          <div class="proposal-amount">$${Number(p.amount).toLocaleString()}</div>
+        </div>
+        <div style="flex-shrink:0">${statusBadge(p.status)}</div>
+      </div>
+      <div class="proposal-meta">
+        <span>⏱ ${p.estimatedDays} days</span>
+        <span>📅 ${formatDate(p.createdAt)}</span>
+      </div>
+      <div class="proposal-cover">${escHtml(p.coverLetter || '')}</div>
+      <div class="proposal-actions">
+        ${isPending
+          ? `<button class="btn btn-outline btn-sm" onclick="openEditProposal(${p.id})">✏️ Edit</button>
+             <button class="btn btn-ghost btn-sm" onclick="withdrawProposal(${p.id})">↩️ Withdraw</button>`
+          : `<span style="font-size:.82rem;color:var(--gray-500)">Final status</span>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+// ── JOB CRUD (CLIENT) ──
+function openEditJobModal(id) {
+  const job = myJobs.find(j => j.id === id);
+  if (!job) return;
+  document.getElementById('jobModalTitle').textContent = 'Edit Job';
+  document.getElementById('editJobId').value   = job.id;
+  document.getElementById('jobTitle').value    = job.title || '';
+  document.getElementById('jobDesc').value     = job.description || '';
+  document.getElementById('jobPayment').value  = job.paymentType || 'FIXED';
+  document.getElementById('jobPrice').value    = job.price || '';
+  document.getElementById('jobCategory').value = job.category || '';
+  const skills = Array.isArray(job.skills) ? job.skills.join(', ') : (job.skills || '');
+  document.getElementById('jobSkills').value   = skills;
+  hideAlert('jobFormAlert');
+  openModal('jobModal');
+}
+
+// Called when opening create modal from button
+document.addEventListener('click', e => {
+  if (e.target.closest('#jobModal') && !e.target.closest('.modal')) return;
+});
+
+// Reset form when modal opens for create
+const jobModalEl = document.getElementById('jobModal');
+if (jobModalEl) {
+  jobModalEl.addEventListener('click', () => {});
+}
+
+async function saveJob() {
+  const id       = document.getElementById('editJobId').value;
+  const title    = document.getElementById('jobTitle').value.trim();
+  const desc     = document.getElementById('jobDesc').value.trim();
+  const payment  = document.getElementById('jobPayment').value;
+  const price    = document.getElementById('jobPrice').value;
+  const category = document.getElementById('jobCategory').value.trim();
+  const skills   = document.getElementById('jobSkills').value.trim();
+  const btn      = document.getElementById('saveJobBtn');
+
+  hideAlert('jobFormAlert');
+  if (!title || !price || !category || !skills) {
+    showAlert('jobFormAlert', 'Please fill in all required fields.');
+    return;
+  }
+
+  const data = {
+    title, description: desc, paymentType: payment,
+    price: Number(price), category,
+    skills: skills.split(',').map(s => s.trim()).filter(Boolean),
+  };
+
+  setBtnLoading(btn, true, 'Saving...');
+  try {
+    if (id) {
+      await JobsAPI.update(id, data);
+      showToast('Job updated!', 'success');
+    } else {
+      await JobsAPI.create(data);
+      showToast('Job posted!', 'success');
+    }
+    closeModal('jobModal');
+    await loadAll();
+    renderMyJobs(myJobs);
+  } catch (err) {
+    showAlert('jobFormAlert', getErrorMessage(err));
+    setBtnLoading(btn, false);
+  }
+}
+
+// Reset job modal on open for new job
+document.querySelector('[onclick="openModal(\'jobModal\')"]')?.addEventListener('click', () => {
+  document.getElementById('jobModalTitle').textContent = 'Post a New Job';
+  document.getElementById('editJobId').value  = '';
+  document.getElementById('jobTitle').value   = '';
+  document.getElementById('jobDesc').value    = '';
+  document.getElementById('jobPayment').value = 'FIXED';
+  document.getElementById('jobPrice').value   = '';
+  document.getElementById('jobCategory').value = '';
+  document.getElementById('jobSkills').value  = '';
+  hideAlert('jobFormAlert');
+});
+
+function openJobStatusModal(id, currentStatus) {
+  document.getElementById('statusJobId').value  = id;
+  document.getElementById('newJobStatus').value = currentStatus;
+  openModal('jobStatusModal');
 }
 
 async function saveJobStatus() {
-  const id = parseInt(document.getElementById('statusJobId').value);
+  const id     = document.getElementById('statusJobId').value;
   const status = document.getElementById('newJobStatus').value;
   try {
-    await JobsAPI.updateStatus(id, status);
-    closeModal('statusModal');
-    showToast('Status yeniləndi ✅', 'success');
-    await loadClientDashboard();
+    await JobsAPI.updateStatus(id, { status });
+    closeModal('jobStatusModal');
+    showToast('Job status updated.', 'success');
+    await loadAll();
+    renderMyJobs(myJobs);
   } catch (err) {
     showToast(getErrorMessage(err), 'error');
   }
 }
 
-async function deleteJob(id) {
-  const ok = await confirmDialog('Bu işi silmək istədiyinizə əminsinizmi? Bütün müraciətlər də silinəcək.');
-  if (!ok) return;
-  try {
-    await JobsAPI.delete(id);
-    showToast('İş silindi ✅', 'success');
-    await loadClientDashboard();
-  } catch (err) {
-    showToast(getErrorMessage(err), 'error');
-  }
+function deleteJob(id) {
+  const job = myJobs.find(j => j.id === id);
+  showConfirm({
+    title: 'Delete Job',
+    message: `Delete <span class="confirm-name">"${escHtml(job?.title || '')}"</span>? All proposals will be removed.`,
+    confirmText: 'Delete',
+    onConfirm: async () => {
+      try {
+        await JobsAPI.remove(id);
+        showToast('Job deleted.', 'success');
+        await loadAll();
+        renderMyJobs(myJobs);
+      } catch (err) {
+        showToast(getErrorMessage(err), 'error');
+      }
+    }
+  });
 }
 
-// ===== PROPOSAL ACTIONS =====
+// ── PROPOSAL STATUS (CLIENT) ──
 function openPropStatusModal(id) {
-  document.getElementById('propStatusId').value = id;
+  document.getElementById('propStatusId').value  = id;
   document.getElementById('newPropStatus').value = 'ACCEPTED';
   openModal('propStatusModal');
 }
 
 async function savePropStatus() {
-  const id = parseInt(document.getElementById('propStatusId').value);
+  const id     = document.getElementById('propStatusId').value;
   const status = document.getElementById('newPropStatus').value;
   try {
-    await ProposalsAPI.updateStatus(id, status);
+    await ProposalsAPI.updateStatus(id, { status });
     closeModal('propStatusModal');
-    showToast('Müraciət statusu yeniləndi ✅', 'success');
-    await loadClientDashboard();
+    showToast(`Proposal ${status.toLowerCase()}. The freelancer has been notified.`, 'success');
+    const data = await ProposalsAPI.getAll();
+    myProposals = data;
+    renderReceivedProposals(myProposals);
+    renderOverview();
   } catch (err) {
     showToast(getErrorMessage(err), 'error');
   }
 }
 
+// ── EDIT PROPOSAL (FREELANCER) ──
 function openEditProposal(id) {
-  const p = myProposals.find(pr => pr.id === id);
+  const p = myProposals.find(x => x.id === id);
   if (!p) return;
-  document.getElementById('editPropId').value = id;
-  document.getElementById('editPropCover').value = p.coverLetter || '';
-  document.getElementById('editPropAmount').value = p.amount || '';
-  document.getElementById('editPropDays').value = p.estimatedDays || '';
-  document.getElementById('editPropErr').classList.remove('show');
-  openModal('editPropModal');
+  document.getElementById('editPropId').value     = p.id;
+  document.getElementById('editPropLetter').value = p.coverLetter || '';
+  document.getElementById('editPropAmount').value  = p.amount || '';
+  document.getElementById('editPropDays').value    = p.estimatedDays || '';
+  hideAlert('editPropAlert');
+  openModal('editProposalModal');
 }
 
 async function saveEditProposal() {
-  const id = parseInt(document.getElementById('editPropId').value);
-  const coverLetter = document.getElementById('editPropCover').value.trim();
-  const amount = parseFloat(document.getElementById('editPropAmount').value);
-  const estimatedDays = parseInt(document.getElementById('editPropDays').value);
+  const id     = document.getElementById('editPropId').value;
+  const letter = document.getElementById('editPropLetter').value.trim();
+  const amount = document.getElementById('editPropAmount').value;
+  const days   = document.getElementById('editPropDays').value;
+  const btn    = document.getElementById('saveEditPropBtn');
 
-  const btn = document.getElementById('saveEditPropBtn');
-  btn.classList.add('btn-loading'); btn.disabled = true;
-  document.getElementById('editPropErr').classList.remove('show');
+  hideAlert('editPropAlert');
+  if (!letter || !amount || !days) {
+    showAlert('editPropAlert', 'All fields are required.');
+    return;
+  }
 
+  setBtnLoading(btn, true, 'Saving...');
   try {
-    const data = {};
-    if (coverLetter) data.coverLetter = coverLetter;
-    if (amount) data.amount = amount;
-    if (estimatedDays) data.estimatedDays = estimatedDays;
-    await ProposalsAPI.update(id, data);
-    closeModal('editPropModal');
-    showToast('Müraciət yeniləndi ✅', 'success');
-    await loadFreelancerDashboard();
+    await ProposalsAPI.update(id, {
+      coverLetter: letter,
+      amount: Number(amount),
+      estimatedDays: Number(days),
+    });
+    closeModal('editProposalModal');
+    showToast('Proposal updated!', 'success');
+    myProposals = await ProposalsAPI.getAll();
+    renderMyProposals(myProposals);
+    renderOverview();
   } catch (err) {
-    document.getElementById('editPropErrMsg').textContent = getErrorMessage(err);
-    document.getElementById('editPropErr').classList.add('show');
-  } finally {
-    btn.classList.remove('btn-loading'); btn.disabled = false;
+    showAlert('editPropAlert', getErrorMessage(err));
+    setBtnLoading(btn, false);
   }
 }
 
-async function withdrawProposal(id) {
-  const ok = await confirmDialog('Bu müraciəti geri çəkmək istədiyinizə əminsinizmi?');
-  if (!ok) return;
-  try {
-    await ProposalsAPI.updateStatus(id, 'WITHDRAWN');
-    showToast('Müraciət geri çəkildi', 'info');
-    await loadFreelancerDashboard();
-  } catch (err) {
-    showToast(getErrorMessage(err), 'error');
-  }
+// ── WITHDRAW PROPOSAL ──
+function withdrawProposal(id) {
+  showConfirm({
+    title: 'Withdraw Proposal',
+    message: 'Are you sure you want to withdraw this proposal? This action cannot be undone.',
+    confirmText: 'Withdraw',
+    onConfirm: async () => {
+      try {
+        await ProposalsAPI.updateStatus(id, { status: 'WITHDRAWN' });
+        showToast('Proposal withdrawn.', 'info');
+        myProposals = await ProposalsAPI.getAll();
+        renderMyProposals(myProposals);
+        renderOverview();
+      } catch (err) {
+        showToast(getErrorMessage(err), 'error');
+      }
+    }
+  });
 }
-
-async function deleteProposal(id) {
-  const ok = await confirmDialog('Bu müraciəti silmək istədiyinizə əminsinizmi?');
-  if (!ok) return;
-  try {
-    await ProposalsAPI.delete(id);
-    showToast('Müraciət silindi ✅', 'success');
-    await loadFreelancerDashboard();
-  } catch (err) {
-    showToast(getErrorMessage(err), 'error');
-  }
-}
-
-function escHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// Init
-loadDashboard();

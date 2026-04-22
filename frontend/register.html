@@ -1,165 +1,159 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qeydiyyat — FreeLance</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Create Account — WorkHub</title>
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/auth.css" />
 </head>
 <body>
-  <div class="auth-page">
+
+  <div id="navbar"></div>
+
+  <main class="auth-page">
     <div class="auth-card" style="max-width:480px">
-      <div class="auth-header">
-        <div class="auth-logo">Free<span>Lance</span></div>
-        <div class="auth-subtitle">Yeni hesab yaradın</div>
+      <div class="auth-logo">Work<span>Hub</span></div>
+      <h1 class="auth-title">Create your account</h1>
+      <p class="auth-subtitle">Join thousands of clients and freelancers</p>
+
+      <div id="registerAlert" class="alert alert-danger hidden"></div>
+
+      <!-- ROLE SELECTOR -->
+      <div class="form-group">
+        <label class="form-label">I want to...</label>
+        <div class="role-selector">
+          <label class="role-option">
+            <input type="radio" name="role" value="CLIENT" checked />
+            <div class="role-card">
+              <span class="role-icon">🏢</span>
+              <span class="role-name">Hire Talent</span>
+              <span class="role-desc">Post jobs & find freelancers</span>
+            </div>
+          </label>
+          <label class="role-option">
+            <input type="radio" name="role" value="FREELANCER" />
+            <div class="role-card">
+              <span class="role-icon">💼</span>
+              <span class="role-name">Work as Freelancer</span>
+              <span class="role-desc">Find jobs & apply</span>
+            </div>
+          </label>
+        </div>
       </div>
-      <div class="auth-body">
-        <div class="alert alert-danger" id="errorAlert">
-          <span>❌</span><span id="errorMsg"></span>
+
+      <!-- NAME & SURNAME -->
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-control" type="text" id="name" placeholder="John" autocomplete="given-name" />
         </div>
-        <div class="alert alert-success" id="successAlert">
-          <span>✅</span><span>Qeydiyyat uğurlu oldu! Yönləndirilirsiniz...</span>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-control" type="text" id="surname" placeholder="Doe" autocomplete="family-name" />
         </div>
+      </div>
 
-        <form id="registerForm" novalidate>
-          <!-- Role Selection -->
-          <div class="form-group">
-            <label class="form-label">Rol seçin</label>
-            <div class="role-selector">
-              <label class="role-option">
-                <input type="radio" name="role" value="FREELANCER" checked />
-                <div class="role-icon">💼</div>
-                <div class="role-name">Freelancer</div>
-                <div class="role-desc">İşlərə müraciət et</div>
-              </label>
-              <label class="role-option">
-                <input type="radio" name="role" value="CLIENT" />
-                <div class="role-icon">🏢</div>
-                <div class="role-name">Client</div>
-                <div class="role-desc">İş elanı yerləşdir</div>
-              </label>
-            </div>
-          </div>
+      <!-- EMAIL -->
+      <div class="form-group">
+        <label class="form-label">Email Address <span style="color:var(--danger)">*</span></label>
+        <input class="form-control" type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="form-group">
-              <label class="form-label" for="name">Ad *</label>
-              <input class="form-control" type="text" id="name" placeholder="Adınız" required />
-              <div class="form-error" id="nameErr">Ad tələb olunur</div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="surname">Soyad</label>
-              <input class="form-control" type="text" id="surname" placeholder="Soyadınız" />
-            </div>
-          </div>
+      <!-- PHONE -->
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input class="form-control" type="tel" id="phone" placeholder="+1 555 000 0000" autocomplete="tel" />
+      </div>
 
-          <div class="form-group">
-            <label class="form-label" for="email">E-mail *</label>
-            <input class="form-control" type="email" id="email" placeholder="ad@example.com" required />
-            <div class="form-error" id="emailErr">Düzgün e-mail daxil edin</div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="phone">Telefon</label>
-            <input class="form-control" type="tel" id="phone" placeholder="+994 XX XXX XX XX" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="password">Şifrə *</label>
-            <div style="position:relative">
-              <input class="form-control" type="password" id="password" placeholder="Ən az 8 simvol" style="padding-right:44px" required />
-              <button type="button" id="togglePass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-500);font-size:1rem">👁</button>
-            </div>
-            <div class="form-error" id="passErr">Şifrə minimum 8 simvol olmalıdır</div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="passConfirm">Şifrəni təsdiqlə *</label>
-            <input class="form-control" type="password" id="passConfirm" placeholder="Şifrəni yenidən daxil edin" required />
-            <div class="form-error" id="passConfirmErr">Şifrələr uyğun gəlmir</div>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn">
-            Qeydiyyatdan Keç
-          </button>
-        </form>
-
-        <div class="auth-footer">
-          Artıq hesabınız var? <a href="login.html">Daxil olun</a>
+      <!-- PASSWORD -->
+      <div class="form-group">
+        <label class="form-label">Password <span style="color:var(--danger)">*</span></label>
+        <div class="input-wrapper">
+          <input class="form-control" type="password" id="password" placeholder="Min. 6 characters" autocomplete="new-password" />
+          <button class="input-eye" onclick="togglePwd('password', this)" type="button" title="Show/hide">👁</button>
         </div>
+      </div>
+
+      <!-- CONFIRM PASSWORD -->
+      <div class="form-group">
+        <label class="form-label">Confirm Password <span style="color:var(--danger)">*</span></label>
+        <div class="input-wrapper">
+          <input class="form-control" type="password" id="confirm" placeholder="Repeat password" autocomplete="new-password" />
+          <button class="input-eye" onclick="togglePwd('confirm', this)" type="button" title="Show/hide">👁</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-lg btn-block" id="registerBtn" onclick="handleRegister()">
+        🚀 Create Account
+      </button>
+
+      <div class="auth-footer mt-12">
+        Already have an account? <a href="login.html">Sign in</a>
       </div>
     </div>
-  </div>
+  </main>
 
   <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
   <script>
-    requireGuest();
+    renderNavbar('');
+    redirectIfLoggedIn();
 
-    const form = document.getElementById('registerForm');
-    const submitBtn = document.getElementById('submitBtn');
-
-    document.getElementById('togglePass').addEventListener('click', function() {
-      const p = document.getElementById('password');
-      p.type = p.type === 'password' ? 'text' : 'password';
-      this.textContent = p.type === 'password' ? '👁' : '🙈';
-    });
-
-    function showError(msg) {
-      document.getElementById('errorMsg').textContent = msg;
-      document.getElementById('errorAlert').classList.add('show');
-      document.getElementById('successAlert').classList.remove('show');
+    function togglePwd(id, btn) {
+      const el = document.getElementById(id);
+      if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
+      else                        { el.type = 'password'; btn.textContent = '👁'; }
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      document.getElementById('errorAlert').classList.remove('show');
-
-      const role = document.querySelector('input[name="role"]:checked').value;
-      const name = document.getElementById('name').value.trim();
-      const surname = document.getElementById('surname').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const phone = document.getElementById('phone').value.trim();
+    async function handleRegister() {
+      const role     = document.querySelector('input[name="role"]:checked')?.value;
+      const name     = document.getElementById('name').value.trim();
+      const surname  = document.getElementById('surname').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const phone    = document.getElementById('phone').value.trim();
       const password = document.getElementById('password').value;
-      const passConfirm = document.getElementById('passConfirm').value;
+      const confirm  = document.getElementById('confirm').value;
+      const btn      = document.getElementById('registerBtn');
 
-      // Clear errors
-      ['nameErr','emailErr','passErr','passConfirmErr'].forEach(id => {
-        document.getElementById(id).classList.remove('show');
-      });
-      ['name','email','password','passConfirm'].forEach(id => {
-        document.getElementById(id).classList.remove('is-error');
-      });
+      hideAlert('registerAlert');
 
-      let valid = true;
-      if (!name) { document.getElementById('nameErr').classList.add('show'); document.getElementById('name').classList.add('is-error'); valid = false; }
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { document.getElementById('emailErr').classList.add('show'); document.getElementById('email').classList.add('is-error'); valid = false; }
-      if (!password || password.length < 8) { document.getElementById('passErr').classList.add('show'); document.getElementById('password').classList.add('is-error'); valid = false; }
-      if (password !== passConfirm) { document.getElementById('passConfirmErr').classList.add('show'); document.getElementById('passConfirm').classList.add('is-error'); valid = false; }
-      if (!valid) return;
-
-      submitBtn.classList.add('btn-loading');
-      submitBtn.disabled = true;
-
-      try {
-        const body = { email, password, name, role };
-        if (surname) body.surname = surname;
-        if (phone) body.phone = phone;
-
-        const data = await AuthAPI.register(body);
-        Auth.setSession(data.user, data.accessToken);
-        document.getElementById('successAlert').classList.add('show');
-        setTimeout(() => {
-          if (data.user.role === 'ADMIN') window.location.href = 'admin.html';
-          else window.location.href = 'dashboard.html';
-        }, 1200);
-      } catch (err) {
-        showError(getErrorMessage(err));
-        submitBtn.classList.remove('btn-loading');
-        submitBtn.disabled = false;
+      // Client-side validation
+      if (!email || !password) {
+        showAlert('registerAlert', 'Email and password are required.');
+        return;
       }
+      if (password.length < 6) {
+        showAlert('registerAlert', 'Password must be at least 6 characters.');
+        return;
+      }
+      if (password !== confirm) {
+        showAlert('registerAlert', 'Passwords do not match.');
+        return;
+      }
+
+      const payload = { email, password, role };
+      if (name)    payload.name    = name;
+      if (surname) payload.surname = surname;
+      if (phone)   payload.phone   = phone;
+
+      setBtnLoading(btn, true, 'Creating account...');
+      try {
+        const res = await AuthAPI.register(payload);
+        Auth.setSession(res.user, res.accessToken);
+
+        showToast('Account created! Welcome to WorkHub 🎉', 'success');
+        setTimeout(() => {
+          window.location.href = role === 'ADMIN' ? 'admin.html' : 'dashboard.html';
+        }, 800);
+      } catch (err) {
+        showAlert('registerAlert', getErrorMessage(err));
+        setBtnLoading(btn, false);
+      }
+    }
+
+    document.getElementById('confirm').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleRegister();
     });
   </script>
 </body>

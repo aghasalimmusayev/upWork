@@ -1,119 +1,106 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Giriş — FreeLance</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Sign In — WorkHub</title>
   <link rel="stylesheet" href="css/main.css" />
   <link rel="stylesheet" href="css/auth.css" />
 </head>
 <body>
-  <div class="auth-page">
+
+  <div id="navbar"></div>
+
+  <main class="auth-page">
     <div class="auth-card">
-      <div class="auth-header">
-        <div class="auth-logo">Free<span>Lance</span></div>
-        <div class="auth-subtitle">Hesabınıza daxil olun</div>
+      <div class="auth-logo">Work<span>Hub</span></div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your account to continue</p>
+
+      <div id="loginAlert" class="alert alert-danger hidden"></div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input
+          class="form-control"
+          type="email"
+          id="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
       </div>
-      <div class="auth-body">
-        <div class="alert alert-danger" id="errorAlert">
-          <span>❌</span><span id="errorMsg"></span>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrapper">
+          <input
+            class="form-control"
+            type="password"
+            id="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+          <button class="input-eye" onclick="togglePwd('password', this)" type="button" title="Show/hide password">👁</button>
         </div>
+      </div>
 
-        <form id="loginForm" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="email">E-mail ünvanı</label>
-            <input class="form-control" type="email" id="email" placeholder="ad@example.com" required />
-            <div class="form-error" id="emailErr">Düzgün e-mail daxil edin</div>
-          </div>
+      <button class="btn btn-primary btn-lg btn-block" id="loginBtn" onclick="handleLogin()">
+        Sign In
+      </button>
 
-          <div class="form-group">
-            <label class="form-label" for="password">Şifrə</label>
-            <div style="position:relative">
-              <input class="form-control" type="password" id="password" placeholder="Şifrənizi daxil edin" style="padding-right:44px" required />
-              <button type="button" id="togglePass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--gray-500);font-size:1rem">👁</button>
-            </div>
-            <div class="form-error" id="passErr">Şifrə tələb olunur</div>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-block btn-lg" id="submitBtn">
-            Daxil Ol
-          </button>
-        </form>
-
-        <div class="auth-footer">
-          Hesabınız yoxdur? <a href="register.html">Qeydiyyatdan keçin</a>
-        </div>
-        <div class="auth-footer mt-8">
-          <a href="jobs.html" style="color:var(--gray-500)">← İşlərə baxmağa davam et</a>
-        </div>
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Create one</a>
       </div>
     </div>
-  </div>
+  </main>
 
   <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
   <script>
-    requireGuest();
+    renderNavbar('');
+    redirectIfLoggedIn();
 
-    const form = document.getElementById('loginForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const errorAlert = document.getElementById('errorAlert');
-    const errorMsg = document.getElementById('errorMsg');
-
-    document.getElementById('togglePass').addEventListener('click', function() {
-      const p = document.getElementById('password');
-      p.type = p.type === 'password' ? 'text' : 'password';
-      this.textContent = p.type === 'password' ? '👁' : '🙈';
-    });
-
-    function showError(msg) {
-      errorMsg.textContent = msg;
-      errorAlert.classList.add('show');
+    function togglePwd(id, btn) {
+      const el = document.getElementById(id);
+      if (el.type === 'password') { el.type = 'text'; btn.textContent = '🙈'; }
+      else                        { el.type = 'password'; btn.textContent = '👁'; }
     }
-    function hideError() { errorAlert.classList.remove('show'); }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideError();
-
-      const email = document.getElementById('email').value.trim();
+    async function handleLogin() {
+      const email    = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
-      let valid = true;
+      const btn      = document.getElementById('loginBtn');
 
-      document.getElementById('emailErr').classList.remove('show');
-      document.getElementById('passErr').classList.remove('show');
-      document.getElementById('email').classList.remove('is-error');
-      document.getElementById('password').classList.remove('is-error');
+      hideAlert('loginAlert');
 
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        document.getElementById('emailErr').classList.add('show');
-        document.getElementById('email').classList.add('is-error');
-        valid = false;
+      if (!email || !password) {
+        showAlert('loginAlert', 'Please fill in all fields.');
+        return;
       }
-      if (!password || password.length < 8) {
-        document.getElementById('passErr').classList.add('show');
-        document.getElementById('password').classList.add('is-error');
-        valid = false;
-      }
-      if (!valid) return;
 
-      submitBtn.classList.add('btn-loading');
-      submitBtn.disabled = true;
-
+      setBtnLoading(btn, true, 'Signing in...');
       try {
-        const data = await AuthAPI.login({ email, password });
-        Auth.setSession(data.user, data.accessToken);
-        showToast('Uğurla daxil oldunuz! 🎉', 'success');
+        const res = await AuthAPI.login({ email, password });
+        Auth.setSession(res.user, res.accessToken);
+
+        showToast('Welcome back, ' + (res.user.name || res.user.email) + '!', 'success');
+
+        const role = res.user.role;
         setTimeout(() => {
-          if (data.user.role === 'ADMIN') window.location.href = '/admin.html';
-          else window.location.href = '/dashboard.html';
-        }, 500);
+          if (role === 'ADMIN') window.location.href = 'admin.html';
+          else window.location.href = 'dashboard.html';
+        }, 600);
       } catch (err) {
-        showError(getErrorMessage(err));
-        submitBtn.classList.remove('btn-loading');
-        submitBtn.disabled = false;
+        showAlert('loginAlert', getErrorMessage(err));
+        setBtnLoading(btn, false);
       }
+    }
+
+    // Enter key submit
+    ['email', 'password'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleLogin();
+      });
     });
   </script>
 </body>

@@ -1,318 +1,191 @@
 <!DOCTYPE html>
-<html lang="az">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>İşlər — FreeLance</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Browse Jobs — WorkHub</title>
   <link rel="stylesheet" href="css/main.css" />
   <style>
-    .jobs-layout { display: grid; grid-template-columns: 260px 1fr; gap: 24px; padding: 24px 0 48px; align-items: start; }
-    .filter-panel { background: var(--white); border: 1px solid var(--gray-300); border-radius: var(--radius-lg); padding: 20px; position: sticky; top: 80px; }
-    .filter-title { font-weight: 700; font-size: 0.875rem; color: var(--gray-900); margin-bottom: 12px; }
-    .filter-group { margin-bottom: 20px; }
-    .filter-label { font-size: 0.78rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
-    .filter-options { display: flex; flex-direction: column; gap: 6px; }
-    .filter-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.875rem; }
-    .filter-option input { accent-color: var(--primary); }
-    .jobs-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-    .jobs-count { font-size: 0.875rem; color: var(--gray-500); }
-    .search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
-    .search-bar .form-control { flex: 1; }
-    @media (max-width: 768px) { .jobs-layout { grid-template-columns: 1fr; } .filter-panel { position: static; } }
+    .jobs-page { padding: 32px 0 60px; }
+    .filter-panel {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--r-lg);
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+    .filter-panel input, .filter-panel select {
+      flex: 1;
+      min-width: 150px;
+      padding: 9px 13px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--r-md);
+      font-size: 0.88rem;
+      font-family: var(--font-body);
+      outline: none;
+      transition: border-color var(--ease);
+    }
+    .filter-panel input:focus, .filter-panel select:focus { border-color: var(--primary); }
+    .filter-panel .filter-sep { width: 1px; height: 24px; background: var(--gray-200); flex-shrink: 0; }
+    .results-count { font-size: 0.85rem; color: var(--gray-500); margin-bottom: 16px; }
+    .jobs-grid { display: flex; flex-direction: column; gap: 14px; }
+    .apply-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .job-card-full { padding: 22px 24px; }
+
+    @media (max-width: 600px) {
+      .filter-panel { flex-direction: column; }
+      .filter-panel input, .filter-panel select { width: 100%; min-width: 0; }
+      .filter-panel .filter-sep { display: none; }
+    }
   </style>
 </head>
 <body>
+
   <div id="navbar"></div>
 
-  <div class="container">
-    <div class="jobs-layout">
-      <!-- FILTER PANEL -->
-      <aside class="filter-panel">
-        <div class="filter-title">🔍 Filterlər</div>
-
-        <div class="filter-group">
-          <div class="filter-label">Status</div>
-          <div class="filter-options">
-            <label class="filter-option"><input type="checkbox" name="status" value="OPEN" checked /> Açıq</label>
-            <label class="filter-option"><input type="checkbox" name="status" value="CLOSED" /> Bağlı</label>
-          </div>
+  <div class="jobs-page">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h1 style="font-size:1.7rem;margin-bottom:4px">Browse Open Jobs</h1>
+          <p class="text-muted">Find the perfect project for your skills</p>
         </div>
-
-        <div class="filter-group">
-          <div class="filter-label">Ödəniş Tipi</div>
-          <div class="filter-options">
-            <label class="filter-option"><input type="checkbox" name="payment" value="FIXED" /> Sabit Qiymət</label>
-            <label class="filter-option"><input type="checkbox" name="payment" value="HOURLY" /> Saatlıq</label>
-          </div>
+        <div id="clientCreateBtn" style="display:none">
+          <button class="btn btn-primary" onclick="openModal('createJobModal')">
+            ＋ Post a Job
+          </button>
         </div>
-
-        <div class="filter-group">
-          <div class="filter-label">Qiymət Aralığı</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <input class="form-control" type="number" id="minPrice" placeholder="Min" min="0" />
-            <input class="form-control" type="number" id="maxPrice" placeholder="Max" min="0" />
-          </div>
-        </div>
-
-        <div class="filter-group">
-          <div class="filter-label">Kateqoriya</div>
-          <input class="form-control" type="text" id="categoryFilter" placeholder="Kateqoriya axtar..." />
-        </div>
-
-        <button class="btn btn-primary btn-block" onclick="applyFilters()">Filterlə</button>
-        <button class="btn btn-ghost btn-block mt-8" onclick="resetFilters()">Sıfırla</button>
-      </aside>
-
-      <!-- JOBS LIST -->
-      <main>
-        <div class="search-bar">
-          <input class="form-control" type="text" id="searchInput" placeholder="İş axtar..." />
-          <button class="btn btn-primary" onclick="applyFilters()">Axtar</button>
-        </div>
-
-        <div class="jobs-header">
-          <span class="jobs-count" id="jobsCount">Yüklənir...</span>
-          <div class="d-flex align-center gap-8">
-            <span style="font-size:.82rem;color:var(--gray-500)">Sırala:</span>
-            <select class="form-control" id="sortSelect" style="width:auto;padding:6px 10px" onchange="applyFilters()">
-              <option value="newest">Ən yeni</option>
-              <option value="price_asc">Qiymət (aşağıdan)</option>
-              <option value="price_desc">Qiymət (yuxarıdan)</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="jobsContainer">
-          <div class="page-loader"><div class="spinner"></div></div>
-        </div>
-      </main>
-    </div>
-  </div>
-
-  <!-- JOB DETAIL MODAL -->
-  <div class="modal-overlay" id="jobModal">
-    <div class="modal" style="max-width:600px">
-      <div class="modal-header">
-        <h3 id="modalJobTitle">İş Detalları</h3>
-        <button class="modal-close">✕</button>
       </div>
-      <div class="modal-body" id="modalJobBody">
-        <div class="spinner"></div>
+
+      <!-- FILTERS -->
+      <div class="filter-panel">
+        <input type="text" id="searchQ" placeholder="🔍  Search title, skills, category..." oninput="applyFilters()" />
+        <div class="filter-sep"></div>
+        <select id="filterStatus" onchange="applyFilters()">
+          <option value="">All Statuses</option>
+          <option value="OPEN">Open</option>
+          <option value="CLOSED">Closed</option>
+        </select>
+        <select id="filterPayment" onchange="applyFilters()">
+          <option value="">All Payment Types</option>
+          <option value="FIXED">Fixed Price</option>
+          <option value="HOURLY">Hourly</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilters()">✕ Clear</button>
+      </div>
+
+      <p class="results-count" id="resultsCount"></p>
+
+      <div id="jobsContainer">
+        <div class="page-loader"><div class="spinner"></div></div>
       </div>
     </div>
   </div>
 
-  <!-- PROPOSAL MODAL -->
-  <div class="modal-overlay" id="proposalModal">
-    <div class="modal">
+  <!-- ── CREATE JOB MODAL (CLIENT) ── -->
+  <div class="modal-overlay" id="createJobModal">
+    <div class="modal" style="max-width:560px">
       <div class="modal-header">
-        <h3>📄 Müraciət Göndər</h3>
+        <h3 id="jobModalTitle">Post a New Job</h3>
         <button class="modal-close">✕</button>
       </div>
       <div class="modal-body">
-        <div class="alert alert-danger" id="propError"><span>❌</span><span id="propErrorMsg"></span></div>
-        <form id="proposalForm" novalidate>
-          <input type="hidden" id="propJobId" />
+        <div id="jobFormAlert" class="alert alert-danger hidden"></div>
+        <input type="hidden" id="editJobId" />
+
+        <div class="form-group">
+          <label class="form-label">Job Title <span style="color:var(--danger)">*</span></label>
+          <input class="form-control" type="text" id="jobTitle" placeholder="e.g. React Frontend Developer" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" id="jobDesc" rows="4" placeholder="Describe the job in detail..."></textarea>
+        </div>
+        <div class="form-grid-2">
           <div class="form-group">
-            <label class="form-label">Müraciət Məktubu *</label>
-            <textarea class="form-control" id="propCoverLetter" rows="5" placeholder="Özünüzü təqdim edin, niyə siz seçilməlisiniz..."></textarea>
-            <div class="form-error" id="coverErr">Müraciət məktubu tələb olunur</div>
+            <label class="form-label">Payment Type <span style="color:var(--danger)">*</span></label>
+            <select class="form-control" id="jobPayment">
+              <option value="FIXED">Fixed Price</option>
+              <option value="HOURLY">Hourly</option>
+            </select>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="form-group">
-              <label class="form-label">Təklif Məbləği ($) *</label>
-              <input class="form-control" type="number" id="propAmount" placeholder="0" min="1" />
-              <div class="form-error" id="amountErr">Məbləğ tələb olunur</div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Müddət (gün) *</label>
-              <input class="form-control" type="number" id="propDays" placeholder="0" min="1" />
-              <div class="form-error" id="daysErr">Müddət tələb olunur</div>
-            </div>
+          <div class="form-group">
+            <label class="form-label">Budget ($) <span style="color:var(--danger)">*</span></label>
+            <input class="form-control" type="number" id="jobPrice" placeholder="500" min="1" />
           </div>
-        </form>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category <span style="color:var(--danger)">*</span></label>
+          <input class="form-control" type="text" id="jobCategory" placeholder="e.g. Web Development" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Required Skills <span style="color:var(--danger)">*</span></label>
+          <input class="form-control" type="text" id="jobSkills" placeholder="React, TypeScript, Node.js (comma-separated)" />
+          <span class="form-hint">Separate skills with commas</span>
+        </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('proposalModal')">Ləğv et</button>
-        <button class="btn btn-primary" id="submitProposal" onclick="submitProposal()">📤 Göndər</button>
+        <button class="btn btn-ghost" onclick="closeModal('createJobModal')">Cancel</button>
+        <button class="btn btn-primary" id="saveJobBtn" onclick="saveJob()">💾 Save Job</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ── APPLY PROPOSAL MODAL (FREELANCER) ── -->
+  <div class="modal-overlay" id="applyModal">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <h3>Submit a Proposal</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="applyAlert" class="alert alert-danger hidden"></div>
+        <input type="hidden" id="applyJobId" />
+        <p class="mb-16 text-muted" style="font-size:.85rem">
+          Applying for: <strong id="applyJobTitle" style="color:var(--gray-900)"></strong>
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Cover Letter <span style="color:var(--danger)">*</span></label>
+          <textarea class="form-control" id="applyLetter" rows="5"
+            placeholder="Introduce yourself and explain why you're the best fit for this job..."></textarea>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Your Bid ($) <span style="color:var(--danger)">*</span></label>
+            <input class="form-control" type="number" id="applyAmount" placeholder="0" min="1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Days <span style="color:var(--danger)">*</span></label>
+            <input class="form-control" type="number" id="applyDays" placeholder="7" min="1" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal('applyModal')">Cancel</button>
+        <button class="btn btn-primary" id="applySubmitBtn" onclick="submitProposal()">🚀 Submit Proposal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIEW JOB DETAIL MODAL ── -->
+  <div class="modal-overlay" id="jobDetailModal">
+    <div class="modal" style="max-width:600px">
+      <div class="modal-header">
+        <h3 id="detailTitle">Job Details</h3>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="jobDetailBody"></div>
+      <div class="modal-footer" id="jobDetailFooter"></div>
     </div>
   </div>
 
   <script src="js/api.js"></script>
-  <script>
-    renderNavbar('jobs');
-
-    let allJobs = [];
-
-    // URL params
-    const params = new URLSearchParams(location.search);
-    const initSearch = params.get('search') || '';
-    const initCategory = params.get('category') || '';
-    if (initSearch) document.getElementById('searchInput').value = initSearch;
-    if (initCategory) document.getElementById('categoryFilter').value = initCategory;
-
-    async function loadJobs() {
-      try {
-        allJobs = await JobsAPI.getAll();
-        applyFilters();
-      } catch (err) {
-        document.getElementById('jobsContainer').innerHTML = `
-          <div class="empty-state"><div class="icon">⚠️</div><p>İşlər yüklənə bilmədi</p></div>`;
-        document.getElementById('jobsCount').textContent = '0 iş';
-      }
-    }
-
-    function applyFilters() {
-      const search = document.getElementById('searchInput').value.trim().toLowerCase();
-      const cat = document.getElementById('categoryFilter').value.trim().toLowerCase();
-      const statuses = [...document.querySelectorAll('input[name="status"]:checked')].map(i => i.value);
-      const payments = [...document.querySelectorAll('input[name="payment"]:checked')].map(i => i.value);
-      const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
-      const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
-      const sort = document.getElementById('sortSelect').value;
-
-      let filtered = allJobs.filter(j => {
-        if (statuses.length && !statuses.includes(j.status)) return false;
-        if (payments.length && !payments.includes(j.paymentType)) return false;
-        if (j.price < minPrice || j.price > maxPrice) return false;
-        if (search && !j.title.toLowerCase().includes(search) && !j.description?.toLowerCase().includes(search)) return false;
-        if (cat && !j.category?.toLowerCase().includes(cat)) return false;
-        return true;
-      });
-
-      if (sort === 'price_asc') filtered.sort((a, b) => a.price - b.price);
-      else if (sort === 'price_desc') filtered.sort((a, b) => b.price - a.price);
-      else filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-      renderJobs(filtered);
-    }
-
-    function resetFilters() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('categoryFilter').value = '';
-      document.getElementById('minPrice').value = '';
-      document.getElementById('maxPrice').value = '';
-      document.querySelectorAll('input[name="status"]').forEach(i => i.checked = i.value === 'OPEN');
-      document.querySelectorAll('input[name="payment"]').forEach(i => i.checked = false);
-      applyFilters();
-    }
-
-    function renderJobs(jobs) {
-      document.getElementById('jobsCount').textContent = `${jobs.length} iş tapıldı`;
-      if (jobs.length === 0) {
-        document.getElementById('jobsContainer').innerHTML = `
-          <div class="empty-state"><div class="icon">🔍</div><p>Heç bir iş tapılmadı</p><button class="btn btn-outline" onclick="resetFilters()">Filteri sıfırla</button></div>`;
-        return;
-      }
-      document.getElementById('jobsContainer').innerHTML = jobs.map(j => `
-        <div class="job-card animate-in" onclick="showJobDetail(${j.id})">
-          <div class="job-card-header">
-            <div class="job-card-title">${escHtml(j.title)}</div>
-            <span class="${badgeForStatus(j.status)}">${j.status === 'OPEN' ? 'Açıq' : 'Bağlı'}</span>
-          </div>
-          <div class="job-card-meta">
-            <span>💰 $${j.price} <small>(${j.paymentType === 'FIXED' ? 'Sabit' : 'Saatlıq'})</small></span>
-            <span>📂 ${escHtml(j.category)}</span>
-            <span>📅 ${formatDate(j.createdAt)}</span>
-          </div>
-          ${j.description ? `<div class="job-card-desc">${escHtml(j.description)}</div>` : ''}
-          <div class="job-card-tags">
-            ${(j.skills || []).slice(0, 5).map(s => `<span class="tag">${escHtml(s)}</span>`).join('')}
-            ${j.skills?.length > 5 ? `<span class="tag">+${j.skills.length - 5}</span>` : ''}
-          </div>
-        </div>`).join('');
-    }
-
-    async function showJobDetail(id) {
-      openModal('jobModal');
-      document.getElementById('modalJobBody').innerHTML = '<div class="spinner"></div>';
-      try {
-        let job;
-        // Try authenticated endpoint first, fallback to list
-        if (Auth.isLoggedIn() && Auth.isClient()) {
-          try { job = await JobsAPI.getOne(id); } catch { job = allJobs.find(j => j.id === id); }
-        } else {
-          job = allJobs.find(j => j.id === id);
-        }
-        if (!job) throw new Error('Tapılmadı');
-        document.getElementById('modalJobTitle').textContent = job.title;
-
-        const canPropose = Auth.isLoggedIn() && Auth.isFreelancer() && job.status === 'OPEN';
-        document.getElementById('modalJobBody').innerHTML = `
-          <div class="d-flex align-center gap-8 mb-16 flex-wrap">
-            <span class="${badgeForStatus(job.status)}">${job.status === 'OPEN' ? 'Açıq' : 'Bağlı'}</span>
-            <span class="${badgeForStatus(job.paymentType)}">${job.paymentType === 'FIXED' ? 'Sabit Qiymət' : 'Saatlıq'}</span>
-          </div>
-          <div class="d-flex flex-wrap gap-12 mb-16" style="font-size:.875rem;color:var(--gray-500)">
-            <span>💰 <strong>$${job.price}</strong></span>
-            <span>📂 <strong>${escHtml(job.category)}</strong></span>
-            <span>📅 ${formatDate(job.createdAt)}</span>
-          </div>
-          ${job.description ? `<div class="mb-16"><h4 class="mb-8">Təsvir</h4><p style="font-size:.875rem;line-height:1.7">${escHtml(job.description)}</p></div>` : ''}
-          <div class="mb-16">
-            <h4 class="mb-8">Tələb olunan bacarıqlar</h4>
-            <div>${(job.skills || []).map(s => `<span class="tag">${escHtml(s)}</span>`).join('')}</div>
-          </div>
-          ${canPropose ? `<div class="mt-16"><button class="btn btn-primary btn-block" onclick="openProposalForm(${job.id})">📤 Müraciət Göndər</button></div>` : ''}
-          ${!Auth.isLoggedIn() ? `<div class="alert alert-info show mt-16"><span>ℹ️</span><span>Müraciət göndərmək üçün <a href="/login.html" style="color:var(--secondary);font-weight:600">daxil olun</a></span></div>` : ''}
-          ${Auth.isLoggedIn() && !Auth.isFreelancer() && !Auth.isAdmin() ? '' : ''}
-        `;
-      } catch {
-        document.getElementById('modalJobBody').innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>İş yüklənə bilmədi</p></div>`;
-      }
-    }
-
-    function openProposalForm(jobId) {
-      closeModal('jobModal');
-      document.getElementById('propJobId').value = jobId;
-      document.getElementById('proposalForm').reset();
-      document.getElementById('propError').classList.remove('show');
-      openModal('proposalModal');
-    }
-
-    async function submitProposal() {
-      const jobId = document.getElementById('propJobId').value;
-      const coverLetter = document.getElementById('propCoverLetter').value.trim();
-      const amount = parseFloat(document.getElementById('propAmount').value);
-      const estimatedDays = parseInt(document.getElementById('propDays').value);
-
-      ['coverErr','amountErr','daysErr'].forEach(id => document.getElementById(id).classList.remove('show'));
-      ['propCoverLetter','propAmount','propDays'].forEach(id => document.getElementById(id).classList.remove('is-error'));
-
-      let valid = true;
-      if (!coverLetter) { document.getElementById('coverErr').classList.add('show'); document.getElementById('propCoverLetter').classList.add('is-error'); valid = false; }
-      if (!amount || amount < 1) { document.getElementById('amountErr').classList.add('show'); document.getElementById('propAmount').classList.add('is-error'); valid = false; }
-      if (!estimatedDays || estimatedDays < 1) { document.getElementById('daysErr').classList.add('show'); document.getElementById('propDays').classList.add('is-error'); valid = false; }
-      if (!valid) return;
-
-      const btn = document.getElementById('submitProposal');
-      btn.classList.add('btn-loading'); btn.disabled = true;
-      document.getElementById('propError').classList.remove('show');
-
-      try {
-        await ProposalsAPI.create(jobId, { coverLetter, amount, estimatedDays });
-        closeModal('proposalModal');
-        showToast('Müraciətiniz uğurla göndərildi! ✅', 'success');
-      } catch (err) {
-        document.getElementById('propErrorMsg').textContent = getErrorMessage(err);
-        document.getElementById('propError').classList.add('show');
-      } finally {
-        btn.classList.remove('btn-loading'); btn.disabled = false;
-      }
-    }
-
-    function escHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    }
-
-    // Enter key search
-    document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') applyFilters(); });
-
-    loadJobs();
-  </script>
+  <script src="js/main.js"></script>
+  <script src="js/jobs.js"></script>
 </body>
 </html>
