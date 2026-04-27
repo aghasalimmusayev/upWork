@@ -17,6 +17,7 @@ export class JobsController {
     constructor(private jobService: JobsService) { }
 
     @Post()
+    @Roles('CLIENT')
     @UseInterceptors(ClassSerializerInterceptor)
     createJob(@Body() body: CreateJobDto, @CurrentUser() user: User) {
         return this.jobService.create(body, user.id)
@@ -33,11 +34,13 @@ export class JobsController {
     }
 
     @Patch('/:id')
+    @Roles('CLIENT')
     updateJob(@Body() body: UpdateJobDto, @CurrentUser() user: User, @Param('id', ParseIntPipe) id: number) {
         return this.jobService.updateJob(id, user.id, user.role, body)
     }
 
     @Patch('/status/:id')
+    @Roles('CLIENT')
     updateStatus(@Body() body: UpdateStatusJob, @Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
         return this.jobService.closeJob(id, user.id, user.role, body.status)
     }
@@ -49,6 +52,7 @@ export class JobsController {
     }
 
     @Delete('/:id')
+    @Roles('CLIENT')
     deleteJob(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
         return this.jobService.delete(id, user.id, user.role,)
     }

@@ -154,6 +154,8 @@ This project is a backend API for a freelance marketplace platform inspired by *
 │   ├── 📁 guards
 │   │   ├── 📄 auth.guard.ts
 │   │   └── 📄 role.guard.ts
+│   ├── 📁 filters
+│   │   └── 📄 http-exception.filter.ts
 │   ├── 📁 interceptors
 │   │   └── 📄 serialize.interceptor.ts
 │   ├── 📁 jobs
@@ -472,6 +474,7 @@ Swagger allows you to:
 | **DTO Validation** | All inputs are validated with `class-validator` |
 | **CORS** | Only allowed origins are accepted |
 | **Role Guard** | Role verification for certain routes |
+| **Global Exception Filter** | All unhandled errors are caught and returned as a uniform JSON response |
 
 ---
 

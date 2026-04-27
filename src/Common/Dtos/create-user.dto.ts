@@ -4,16 +4,16 @@ import { IsEmail, IsIn, IsOptional, IsString, MinLength } from "class-validator"
 export class CreateUserDto {
     @ApiProperty()
     @IsEmail()
-    email: string
+    email!: string
 
     @ApiProperty()
     @IsString()
     @MinLength(8)
-    password: string
+    password!: string
 
     @ApiProperty()
     @IsString()
-    name: string
+    name!: string
 
     @ApiPropertyOptional()
     @IsString()
@@ -22,7 +22,7 @@ export class CreateUserDto {
 
     @ApiProperty()
     @IsIn(['CLIENT', 'FREELANCER'])
-    role: 'CLIENT' | 'FREELANCER'
+    role!: 'CLIENT' | 'FREELANCER'
 
     @ApiProperty()
     @ApiPropertyOptional()

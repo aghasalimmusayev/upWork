@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/Common/Dtos/create-user.dto';
-import type { Request, Response } from 'express';
+import type { Request, Response, CookieOptions } from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginDto } from 'src/Common/Dtos/login.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
@@ -12,6 +12,14 @@ import { UserDto } from 'src/Common/Dtos/user-dto';
 import { CurrentUser } from 'src/decorators/currentUser.decorator';
 import { User } from 'src/Common/Entities/user.entity';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+
+const refreshCookieOptions: CookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/auth',
+    maxAge: ms((process.env.JWT_REFRESH_TIME ?? '7d') as StringValue)
+};
 
 @ApiBearerAuth()
 @UseGuards(ThrottlerGuard)
@@ -24,13 +32,7 @@ export class AuthController {
     @Serialize(AuthResponseDto)
     async register(@Body() body: CreateUserDto, @Res({ passthrough: true }) res: Response) {
         const { user, accessToken, refreshToken } = await this.authService.signup(body)
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/auth',
-            maxAge: ms((process.env.JWT_REFRESH_TIME ?? '7d') as StringValue)
-        })
+        res.cookie('refreshToken', refreshToken, refreshCookieOptions)
         return { user, accessToken }
     }
 
@@ -39,13 +41,7 @@ export class AuthController {
     @Serialize(AuthResponseDto)
     async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
         const { user, accessToken, refreshToken } = await this.authService.signin(body)
-        res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/auth',
-            maxAge: ms((process.env.JWT_REFRESH_TIME ?? '7d') as StringValue)
-        })
+        res.cookie('refreshToken', refreshToken, refreshCookieOptions)
         return { user, accessToken }
     }
 
@@ -54,13 +50,7 @@ export class AuthController {
     async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
         const oldRefreshToken = req.cookies?.refreshToken
         const { accessToken, refreshToken: newRefreshToken } = await this.authService.refresh(oldRefreshToken)
-        res.cookie('refreshToken', newRefreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/auth',
-            maxAge: ms((process.env.JWT_REFRESH_TIME ?? '7d') as StringValue)
-        })
+        res.cookie('refreshToken', newRefreshToken, refreshCookieOptions)
         return { accessToken }
     }
 
